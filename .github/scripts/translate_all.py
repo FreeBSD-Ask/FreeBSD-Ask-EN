@@ -11,7 +11,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 5
 REQUEST_TIMEOUT = 60
 CHUNK_SIZE = 3000
-MAX_WORKERS = 16  # 同时最多翻译几个文件，可调高
+MAX_WORKERS = 8  # 同时最多翻译几个文件，可调高
 
 def check_api_ready(url, retries=10, delay=5):
     for attempt in range(1, retries + 1):
