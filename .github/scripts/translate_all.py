@@ -1,44 +1,59 @@
 import os
 import requests
 from pathlib import Path
+import sys
 
-TRANSLATE_API = os.getenv("TRANSLATE_API_URL")
-if not TRANSLATE_API:
-    raise RuntimeError("Environment variable TRANSLATE_API_URL is not set")
+# 强制要求环境变量
+API_URL = os.getenv("TRANSLATE_API_URL")
+if not API_URL:
+    print("[X] 未设置环境变量 TRANSLATE_API_URL")
+    sys.exit(1)
 
 DOCS_DIR = Path("docs")
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+OUTPUT_DIR = Path(".")
 
-def translate_text(text):
-    data = {
-        "q": text,
-        "source": "zh",
-        "target": "en",
-        "format": "text"
-    }
+def translate_text(text: str) -> str:
     try:
-        r = requests.post(TRANSLATE_API, data=data, timeout=10)
-        r.raise_for_status()
-        return r.json()["translatedText"]
+        response = requests.post(
+            API_URL,
+            data={
+                "q": text,
+                "source": "zh",
+                "target": "en",
+                "format": "text"
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        return response.json()["translatedText"]
     except Exception as e:
-        print(f"[!] 翻译失败: {e}")
-        return text
+        print(f"[!] 翻译失败：{e}")
+        return None
 
-def translate_file(src_path, dst_path):
-    content = src_path.read_text(encoding="utf-8")
+def process_file(src_path: Path):
+    rel_path = src_path.relative_to(DOCS_DIR)
+    dest_path = OUTPUT_DIR / rel_path
+
+    print(f"[*] 处理文件：{src_path}")
+    with open(src_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
     translated = translate_text(content)
-    dst_path.parent.mkdir(parents=True, exist_ok=True)
-    dst_path.write_text(translated, encoding="utf-8")
-    print(f"✔️ Translated {src_path} -> {dst_path}")
+    if translated is None:
+        print(f"[!] 跳过（翻译失败）：{src_path}")
+        return
+
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(dest_path, "w", encoding="utf-8") as f:
+        f.write(translated)
+    print(f"[✓] 写入翻译文件：{dest_path}")
 
 def main():
-    all_md_files = list(DOCS_DIR.rglob("*.md"))
-    print(f"Found {len(all_md_files)} .md files in {DOCS_DIR}")
-
-    for src_path in all_md_files:
-        relative_path = src_path.relative_to(DOCS_DIR)
-        dst_path = REPO_ROOT / relative_path
-        translate_file(src_path, dst_path)
+    all_md = list(DOCS_DIR.rglob("*.md"))
+    print(f"[i] 共发现 {len(all_md)} 个 Markdown 文件")
+    for i, file in enumerate(all_md, 1):
+        print(f"[{i}/{len(all_md)}] 翻译中：{file}")
+        process_file(file)
 
 if __name__ == "__main__":
     main()
