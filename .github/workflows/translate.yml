@@ -1,0 +1,38 @@
+name: Translate Docs via LibreTranslate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/**'
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run translation script
+        env:
+          TRANSLATE_API_URL: ${{ secrets.TRANSLATE_API_URL }}
+        run: python .github/scripts/translate_all.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto translate docs via LibreTranslate" || echo "No changes to commit"
+          git push
