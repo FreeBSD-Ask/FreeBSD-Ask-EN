@@ -1,0 +1,36 @@
+name: Translate Docs to English
+
+on:
+  push:
+    paths:
+      - 'docs/**/*.md'
+      - '.github/workflows/translate-docs.yml'
+  workflow_dispatch:
+    
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run translation script
+        run: python .github/scripts/translate_docs.py
+
+      - name: Commit translated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-translated docs to English" || echo "Nothing to commit"
+          git push
