@@ -2,122 +2,80 @@ import os
 import sys
 import time
 import requests
-from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
-API_URL = os.getenv("TRANSLATE_API_URL")
-if not API_URL:
-    API_URL = "http://localhost:5000/translate"
-    print("[!] Warning: TRANSLATE_API_URL not set, using default:", API_URL, flush=True)
+API_URL = os.getenv("TRANSLATE_API_URL") or "http://localhost:5000/translate"
 
+def check_api_ready(url, retries=5, delay=3):
+    test_data = {
+        "q": "测试",
+        "source": "zh",
+        "target": "en",
+        "format": "text"
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-DOCS_DIR = Path("docs")
-OUTPUT_DIR = Path(".")
-MAX_WORKERS = 5
-MAX_RETRIES = 5
-CHECK_INTERVAL = 3  # 秒
-
-def wait_for_service_ready():
-    print("[i] Checking if translation service is ready...", flush=True)
-    url = API_URL.replace("/translate", "/languages")
-    for attempt in range(30):
+    for attempt in range(1, retries + 1):
         try:
-            r = requests.get(url, timeout=5)
-            if r.status_code == 200:
-                print("[i] Translation service is ready!", flush=True)
+            response = requests.post(url, data=test_data, headers=headers, timeout=10)
+            if response.status_code == 200:
+                print(f"[+] Translation API is ready (attempt {attempt})", flush=True)
                 return True
-        except Exception:
-            pass
-        print(f"[i] Waiting for service... retry {attempt + 1}/30", flush=True)
-        time.sleep(CHECK_INTERVAL)
-    print("[X] Translation service did not become ready in time.", flush=True)
-    return False
+            else:
+                print(f"[!] Unexpected status code {response.status_code} on attempt {attempt}", flush=True)
+        except Exception as e:
+            print(f"[!] Attempt {attempt} failed: {e}", flush=True)
 
-def translate_text(text: str) -> str | None:
+        time.sleep(delay)
+
+    print("[X] Translation API is not ready after retries, exiting.", flush=True)
+    sys.exit(1)
+
+def translate_text(text):
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    data = {
+        "q": text,
+        "source": "zh",
+        "target": "en",
+        "format": "text"
+    }
     try:
-        response = requests.post(
-            API_URL,
-            data={
-                "q": text,
-                "source": "zh",
-                "target": "en",
-                "format": "text"
-            },
-            timeout=30
-        )
+        response = requests.post(API_URL, data=data, headers=headers, timeout=30)
         response.raise_for_status()
-        return response.json().get("translatedText")
+        result = response.json()
+        return result.get("translatedText", "")
     except Exception as e:
         print(f"[!] Translation failed: {e}", flush=True)
         return None
 
-def process_file(src_path: Path):
-    rel_path = src_path.relative_to(DOCS_DIR)
-    dest_path = OUTPUT_DIR / rel_path
-
-    print(f"[*] Processing file: {src_path}", flush=True)
-    with open(src_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    translated = translate_text(content)
-    if translated is None:
-        print(f"[!] Skipping (translation failed): {src_path}", flush=True)
-        return False
-
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(dest_path, "w", encoding="utf-8") as f:
-        f.write(translated)
-    print(f"[✓] Wrote translated file: {dest_path}", flush=True)
-    return True
-
 def main():
-    if not wait_for_service_ready():
-        sys.exit(1)
+    docs_dir = "./docs"
+    translated_dir = "./translated_docs"
 
-    md_files = list(DOCS_DIR.rglob("*.md"))
-    print(f"[i] Found {len(md_files)} markdown files in {DOCS_DIR}", flush=True)
+    if not os.path.exists(translated_dir):
+        os.makedirs(translated_dir)
 
-    files_to_process = md_files
-    success_files = set()
-    retry_count = 0
+    for root, dirs, files in os.walk(docs_dir):
+        for file in files:
+            if file.endswith(".md"):
+                doc_path = os.path.join(root, file)
+                rel_path = os.path.relpath(doc_path, docs_dir)
+                translated_path = os.path.join(translated_dir, rel_path)
+                translated_folder = os.path.dirname(translated_path)
+                if not os.path.exists(translated_folder):
+                    os.makedirs(translated_folder)
 
-    while files_to_process and retry_count < MAX_RETRIES:
-        print(f"[i] Translation attempt {retry_count + 1}", flush=True)
-        failed_files = []
+                with open(doc_path, "r", encoding="utf-8") as f:
+                    content = f.read()
 
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            future_to_file = {executor.submit(process_file, f): f for f in files_to_process}
+                translated_content = translate_text(content)
+                if translated_content is None:
+                    print(f"[!] Skipping file due to translation failure: {doc_path}", flush=True)
+                    continue
 
-            for future in as_completed(future_to_file):
-                file = future_to_file[future]
-                try:
-                    result = future.result()
-                    if result:
-                        success_files.add(file)
-                    else:
-                        failed_files.append(file)
-                except Exception as e:
-                    print(f"[!] Exception while processing {file}: {e}", flush=True)
-                    failed_files.append(file)
-
-        if failed_files:
-            print(f"[!] {len(failed_files)} files failed to translate, retrying...", flush=True)
-        else:
-            print("[i] All files translated successfully!", flush=True)
-            break
-
-        files_to_process = failed_files
-        retry_count += 1
-        if retry_count < MAX_RETRIES:
-            print(f"[i] Waiting {CHECK_INTERVAL}s before next retry...", flush=True)
-            time.sleep(CHECK_INTERVAL)
-
-    if files_to_process:
-        print(f"[X] Failed to translate {len(files_to_process)} files after {MAX_RETRIES} attempts.", flush=True)
-        for f in files_to_process:
-            print(f" - {f}", flush=True)
-    else:
-        print(f"[✓] Successfully translated all {len(md_files)} files.", flush=True)
+                with open(translated_path, "w", encoding="utf-8") as f:
+                    f.write(translated_content)
+                print(f"[+] Translated {doc_path} -> {translated_path}", flush=True)
 
 if __name__ == "__main__":
+    check_api_ready(API_URL)
     main()
