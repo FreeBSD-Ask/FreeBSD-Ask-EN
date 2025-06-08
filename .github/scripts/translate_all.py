@@ -5,7 +5,7 @@ import time
 import requests
 from pathlib import Path
 
-API_URL = os.getenv("TRANSLATE_API_URL", "http://localhost:5000/translate")
+API_URL = "http://localhost:5000/translate"
 MAX_RETRIES = 3
 RETRY_DELAY = 5
 REQUEST_TIMEOUT = 60
