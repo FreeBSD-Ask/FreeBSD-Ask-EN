@@ -30,15 +30,13 @@ jobs:
     - name: Start LibreTranslate container
       run: |
         docker run -d \
-          --name libretranslate \
-          -p 5000:5000 \
-          --memory=4g \
-          --cpus=2 \
-          libretranslate/libretranslate \
-          --load-only zh,en \
-          --max-text-length 20000 \
-          --request-timeout 300
-        sleep 30  # Extra startup time
+        --name libretranslate \
+        -p 5000:5000 \
+        --memory=4g \
+        --cpus=2 \
+        libretranslate/libretranslate \
+        --load-only zh,en
+
 
     - name: Verify container status
       run: |
