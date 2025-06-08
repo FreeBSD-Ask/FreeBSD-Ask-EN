@@ -8,11 +8,11 @@ from pathlib import Path
 
 API_BASE_URL = "http://localhost:5000"
 TRANSLATE_ENDPOINT = f"{API_BASE_URL}/translate"
-MAX_RETRIES = 3
+MAX_RETRIES = 5
 RETRY_DELAY = 5
 REQUEST_TIMEOUT = 60
 CHUNK_SIZE = 3000  # 每块字符数上限
-MAX_WORKERS = 8   # 最大线程数
+MAX_WORKERS = 4   # 最大线程数
 
 
 def check_api_ready(base_url, retries=10, delay=5):
