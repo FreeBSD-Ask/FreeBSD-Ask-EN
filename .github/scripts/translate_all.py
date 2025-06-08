@@ -7,8 +7,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 API_URL = os.getenv("TRANSLATE_API_URL")
 if not API_URL:
-    print("[X] ERROR: TRANSLATE_API_URL environment variable is not set.", flush=True)
-    sys.exit(1)
+    API_URL = "http://localhost:5000/translate"
+    print("[!] Warning: TRANSLATE_API_URL not set, using default:", API_URL, flush=True)
+
 
 DOCS_DIR = Path("docs")
 OUTPUT_DIR = Path(".")
