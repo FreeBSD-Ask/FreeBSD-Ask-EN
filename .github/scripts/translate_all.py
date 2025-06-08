@@ -9,10 +9,10 @@ from pathlib import Path
 API_BASE_URL = "http://localhost:5000"
 TRANSLATE_ENDPOINT = f"{API_BASE_URL}/translate"
 MAX_RETRIES = 5
-RETRY_DELAY = 5
-REQUEST_TIMEOUT = 60
-CHUNK_SIZE = 3000  # 每块字符数上限
-MAX_WORKERS = 4   # 最大线程数
+RETRY_DELAY = 2
+REQUEST_TIMEOUT = 90
+CHUNK_SIZE = 4000  # 每块字符数上限
+MAX_WORKERS = 3   # 最大线程数
 
 
 def check_api_ready(base_url, retries=10, delay=5):
@@ -75,7 +75,7 @@ def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
         if translated is None:
             return None
         translated_chunks.append(translated)
-        time.sleep(0.5)  # 稍微控制请求频率
+        time.sleep(1)  # 稍微控制请求频率
 
     return "".join(translated_chunks)
 
