@@ -1,7 +1,7 @@
-name: Init Full Translation
+name: Translate Using googletrans
 
 on:
-  workflow_dispatch:  # 手动触发初始化
+  workflow_dispatch:  # 手动触发
 
 jobs:
   translate:
@@ -18,16 +18,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install requests
+      - name: Install googletrans
+        run: pip install googletrans==4.0.0-rc1
 
-      - name: Translate all .md files from docs/
-        run: python .github/scripts/translate_all.py
+      - name: Run translation script
+        run: python .github/scripts/translate_all_googletrans.py
 
       - name: Commit translated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Initial translation of all docs to English" || echo "Nothing to commit"
+          git commit -m "Translated with googletrans" || echo "Nothing to commit"
           git push
