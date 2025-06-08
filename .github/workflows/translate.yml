@@ -1,38 +1,55 @@
-name: Translate Docs via LibreTranslate
+name: Translate Markdown files
 
 on:
-  workflow_dispatch:
   push:
     paths:
-      - 'docs/**'
+      - 'docs/**.md'
+  workflow_dispatch:
 
 jobs:
   translate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo with submodules
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+    - name: Checkout repository including submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: true
 
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Start LibreTranslate container
+      run: |
+        docker run -d --name libretranslate -p 5000:5000 libretranslate/libretranslate --load-only zh,en
 
-      - name: Install requests
-        run: pip install requests
+    - name: Wait for LibreTranslate service to be ready
+      run: |
+        for i in {1..30}; do
+          if curl -s http://localhost:5000/ > /dev/null; then
+            echo "LibreTranslate is ready"
+            exit 0
+          else
+            echo "Waiting for LibreTranslate to start..."
+            sleep 2
+          fi
+        done
+        echo "Error: LibreTranslate did not start in time"
+        exit 1
 
-      - name: Run translation script
-        env:
-          TRANSLATE_API_URL: ${{ secrets.TRANSLATE_API_URL }}
-        run: python .github/scripts/translate_all.py
+    - name: Run translation script
+      env:
+        TRANSLATE_API_URL: http://localhost:5000/translate
+      run: |
+        python3 .github/scripts/translate_all.py
 
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Auto translate docs via LibreTranslate" || echo "No changes to commit"
-          git push
+    - name: Commit and push translation results
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add .
+        git diff --cached --quiet || git commit -m "自动翻译更新"
+        git push
+      continue-on-error: true
+
+    - name: Cleanup LibreTranslate container
+      if: always()
+      run: |
+        docker rm -f libretranslate
