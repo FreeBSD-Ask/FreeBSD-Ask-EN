@@ -3,7 +3,7 @@ name: Translate Markdown files
 on:
   push:
     paths:
-      - 'docs/**.md'
+      - 'docs/**/*.md'
   workflow_dispatch:
 
 jobs:
@@ -23,24 +23,24 @@ jobs:
     - name: Wait for LibreTranslate service to be ready
       run: |
         for i in {1..30}; do
-          if curl -s http://localhost:5000/ > /dev/null; then
+          if curl -s http://localhost:5000/languages > /dev/null; then
             echo "LibreTranslate is ready"
             exit 0
           else
             echo "Waiting for LibreTranslate to start..."
-            sleep 2
+            sleep 3
           fi
         done
-        echo "Error: LibreTranslate did not start in time"
+        echo "LibreTranslate did not start in time"
         exit 1
 
-    - name: Run translation script
+    - name: Run translation script with retries
       env:
         TRANSLATE_API_URL: http://localhost:5000/translate
       run: |
-        python3 .github/scripts/translate_all.py
+        python3 -u .github/scripts/translate_all.py
 
-    - name: Commit and push translation results
+    - name: Commit and push translated files
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
