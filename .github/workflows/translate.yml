@@ -9,7 +9,7 @@ on:
 jobs:
   translate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Set overall timeout
+    timeout-minutes: 30
 
     steps:
     - name: Checkout repository
@@ -22,7 +22,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install requests
@@ -30,24 +30,22 @@ jobs:
     - name: Start LibreTranslate container
       run: |
         docker run -d \
-        --name libretranslate \
-        -p 5000:5000 \
-        --memory=4g \
-        --cpus=2 \
-        libretranslate/libretranslate \
-        --load-only zh,en
+          --name libretranslate \
+          -p 5000:5000 \
+          libretranslate/libretranslate \
+          --load-only zh,en \
+          --threads 4
+        sleep 30
 
-
-    - name: Verify container status
+    - name: Verify LibreTranslate container status
       run: |
         docker ps
-        docker logs libretranslate --tail 20
+        docker logs libretranslate --tail 30
 
-    - name: Wait for API to be ready
+    - name: Wait for LibreTranslate to be ready
       run: |
         for i in {1..30}; do
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/languages || echo "000")
-          if [ "$status_code" = "200" ]; then
+          if curl -s http://localhost:5000/languages > /dev/null; then
             echo "LibreTranslate is ready"
             exit 0
           else
@@ -62,23 +60,22 @@ jobs:
       env:
         TRANSLATE_API_URL: http://localhost:5000/translate
       run: |
-        python -u .github/scripts/translate_all.py
+        python3 -u .github/scripts/translate_all.py
 
-    - name: Commit and push changes
+    - name: Commit and push translated files
       if: success()
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         git add .
         if git diff --cached --quiet; then
-          echo "No changes to commit"
+          echo "No translation changes to commit"
         else
           git commit -m "Auto-translate: $(date +'%Y-%m-%d %H:%M')"
           git push
         fi
 
-    - name: Cleanup
+    - name: Cleanup LibreTranslate container
       if: always()
       run: |
-        docker stop libretranslate || true
-        docker rm libretranslate || true
+        docker rm -f libretranslate || true

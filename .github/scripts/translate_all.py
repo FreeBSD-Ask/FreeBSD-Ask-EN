@@ -15,7 +15,6 @@ CHUNK_SIZE = 3000  # 每块字符数上限
 
 
 def check_api_ready(base_url, retries=10, delay=5):
-    """检查翻译 API 是否就绪"""
     for attempt in range(1, retries + 1):
         try:
             response = requests.get(f"{base_url}/languages", timeout=10)
@@ -33,7 +32,6 @@ def check_api_ready(base_url, retries=10, delay=5):
 
 
 def translate_text(text, max_retries=MAX_RETRIES):
-    """翻译文本，带重试机制"""
     headers = {"Content-Type": "application/json"}
     data = {
         "q": text,
@@ -64,7 +62,6 @@ def translate_text(text, max_retries=MAX_RETRIES):
 
 
 def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
-    """分块翻译大文本"""
     chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
     translated_chunks = []
 
@@ -74,13 +71,12 @@ def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
         if translated is None:
             return None
         translated_chunks.append(translated)
-        time.sleep(1)  # 可适当控制节流
+        time.sleep(1)
 
     return "".join(translated_chunks)
 
 
 def process_file(input_path, output_path):
-    """处理单个 Markdown 文件的翻译"""
     with open(input_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -105,7 +101,7 @@ def process_file(input_path, output_path):
 
 def main():
     docs_dir = "./docs"
-    translated_dir = "./translated_docs"
+    translated_root = "."  # 改成根路径
 
     if not os.path.exists(docs_dir):
         print(f"[!] Source directory not found: {docs_dir}", flush=True)
@@ -122,7 +118,7 @@ def main():
             if file.endswith(".md"):
                 input_path = os.path.join(root, file)
                 rel_path = os.path.relpath(input_path, docs_dir)
-                output_path = os.path.join(translated_dir, rel_path)
+                output_path = os.path.join(translated_root, rel_path)
 
                 try:
                     if process_file(input_path, output_path):
