@@ -9,7 +9,7 @@ on:
 jobs:
   translate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
 
     steps:
     - name: Checkout repository
@@ -34,7 +34,7 @@ jobs:
           -p 5000:5000 \
           libretranslate/libretranslate \
           --load-only zh,en \
-          --threads 3
+          --threads 2
         sleep 30
 
     - name: Verify LibreTranslate container status
