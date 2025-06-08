@@ -12,7 +12,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 5
 REQUEST_TIMEOUT = 60
 CHUNK_SIZE = 3000  # 每块字符数上限
-MAX_WORKERS = 16   # 最大线程数
+MAX_WORKERS = 8   # 最大线程数
 
 
 def check_api_ready(base_url, retries=10, delay=5):
