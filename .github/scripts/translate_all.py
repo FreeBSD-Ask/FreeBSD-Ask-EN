@@ -110,7 +110,7 @@ def process_file(input_path, output_path):
 
 def main():
     docs_dir = "./docs"
-    translated_dir = "./translated_docs"
+    translated_dir = "."
 
     if not os.path.exists(docs_dir):
         print(f"[!] Source directory not found: {docs_dir}", flush=True)
