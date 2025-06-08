@@ -3,7 +3,7 @@ import os
 import sys
 import time
 import requests
-
+import concurrent.futures
 from pathlib import Path
 
 API_BASE_URL = "http://localhost:5000"
@@ -12,6 +12,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 5
 REQUEST_TIMEOUT = 60
 CHUNK_SIZE = 3000  # 每块字符数上限
+MAX_WORKERS = 16   # 最大线程数
 
 
 def check_api_ready(base_url, retries=10, delay=5):
@@ -74,33 +75,37 @@ def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
         if translated is None:
             return None
         translated_chunks.append(translated)
-        time.sleep(1)  # 可适当控制节流
+        time.sleep(0.5)  # 稍微控制请求频率
 
     return "".join(translated_chunks)
 
 
 def process_file(input_path, output_path):
     """处理单个 Markdown 文件的翻译"""
-    with open(input_path, "r", encoding="utf-8") as f:
-        content = f.read()
+    try:
+        with open(input_path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-    if len(content) > CHUNK_SIZE:
-        translated_content = translate_in_chunks(content)
-    else:
-        translated_content = translate_text(content)
+        if len(content) > CHUNK_SIZE:
+            translated_content = translate_in_chunks(content)
+        else:
+            translated_content = translate_text(content)
 
-    if translated_content is None:
-        print(f"[X] Failed to translate {input_path}", flush=True)
+        if translated_content is None:
+            print(f"[X] Failed to translate {input_path}", flush=True)
+            return False
+
+        output_dir = os.path.dirname(output_path)
+        os.makedirs(output_dir, exist_ok=True)
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(translated_content)
+
+        print(f"[✓] Translated {input_path} -> {output_path}", flush=True)
+        return True
+    except Exception as e:
+        print(f"[X] Error processing {input_path}: {str(e)}", flush=True)
         return False
-
-    output_dir = os.path.dirname(output_path)
-    os.makedirs(output_dir, exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(translated_content)
-
-    print(f"[✓] Translated {input_path} -> {output_path}", flush=True)
-    return True
 
 
 def main():
@@ -114,24 +119,38 @@ def main():
     if not check_api_ready(API_BASE_URL):
         sys.exit(1)
 
-    success_count = 0
-    failure_count = 0
-
+    # 收集所有需要处理的文件
+    file_tasks = []
     for root, _, files in os.walk(docs_dir):
         for file in files:
             if file.endswith(".md"):
                 input_path = os.path.join(root, file)
                 rel_path = os.path.relpath(input_path, docs_dir)
                 output_path = os.path.join(translated_dir, rel_path)
+                file_tasks.append((input_path, output_path))
 
-                try:
-                    if process_file(input_path, output_path):
-                        success_count += 1
-                    else:
-                        failure_count += 1
-                except Exception as e:
-                    print(f"[X] Error processing {input_path}: {str(e)}", flush=True)
+    print(f"[*] Found {len(file_tasks)} files to translate", flush=True)
+    
+    success_count = 0
+    failure_count = 0
+
+    # 使用线程池处理文件
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {
+            executor.submit(process_file, input_path, output_path): (input_path, output_path)
+            for input_path, output_path in file_tasks
+        }
+        
+        for future in concurrent.futures.as_completed(futures):
+            input_path, output_path = futures[future]
+            try:
+                if future.result():
+                    success_count += 1
+                else:
                     failure_count += 1
+            except Exception as e:
+                print(f"[X] Unexpected error with {input_path}: {str(e)}", flush=True)
+                failure_count += 1
 
     print(f"\nTranslation summary: {success_count} succeeded, {failure_count} failed", flush=True)
     if failure_count > 0:
