@@ -5,14 +5,17 @@ import time
 import requests
 import concurrent.futures
 import mistune
+import re
+import html
 
 API_BASE_URL = "http://localhost:5000"
 TRANSLATE_ENDPOINT = f"{API_BASE_URL}/translate"
 MAX_RETRIES = 5
 RETRY_DELAY = 2
 REQUEST_TIMEOUT = 90
-CHUNK_SIZE = 4000  # 每块字符数上限
-MAX_WORKERS = 2   # 最大线程数
+CHUNK_SIZE = 3500  # 减小分块大小防止400错误
+MAX_WORKERS = 2
+SENTENCE_DELIMITERS = r'[。！？.!?]'  # 句子分隔符
 
 def check_api_ready(base_url, retries=10, delay=5):
     for attempt in range(1, retries + 1):
@@ -31,8 +34,13 @@ def check_api_ready(base_url, retries=10, delay=5):
 
 def translate_text(text, max_retries=MAX_RETRIES):
     headers = {"Content-Type": "application/json"}
+    
+    # 清理文本中的控制字符和非法Unicode
+    cleaned_text = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
+    cleaned_text = html.unescape(cleaned_text)
+    
     data = {
-        "q": text,
+        "q": cleaned_text,
         "source": "zh",
         "target": "en",
         "format": "text"
@@ -49,8 +57,18 @@ def translate_text(text, max_retries=MAX_RETRIES):
             response.raise_for_status()
             result = response.json()
             return result.get("translatedText", "")
+        except requests.exceptions.HTTPError as e:
+            # 捕获详细的错误信息
+            error_detail = response.text if hasattr(response, 'text') else str(e)
+            print(f"[!] Translation attempt {attempt+1} failed: HTTP {response.status_code} - {error_detail}", flush=True)
+            if attempt < max_retries - 1:
+                wait_time = RETRY_DELAY * (attempt + 1)
+                print(f"[...] Retrying in {wait_time} seconds...", flush=True)
+                time.sleep(wait_time)
+                continue
+            raise
         except requests.exceptions.RequestException as e:
-            print(f"[!] Translation attempt {attempt + 1} failed: {str(e)}", flush=True)
+            print(f"[!] Translation attempt {attempt+1} failed: {str(e)}", flush=True)
             if attempt < max_retries - 1:
                 wait_time = RETRY_DELAY * (attempt + 1)
                 print(f"[...] Retrying in {wait_time} seconds...", flush=True)
@@ -58,20 +76,76 @@ def translate_text(text, max_retries=MAX_RETRIES):
                 continue
             raise
 
-def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
-    chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+def split_into_sentences(text):
+    """按句子边界分块，保留分隔符"""
+    sentences = []
+    start = 0
+    for match in re.finditer(SENTENCE_DELIMITERS, text):
+        end = match.end()
+        sentences.append(text[start:end])
+        start = end
+    if start < len(text):
+        sentences.append(text[start:])
+    return sentences
+
+def chunk_text(text, max_chars=CHUNK_SIZE):
+    """智能分块：先按句子分块，然后合并到最大字符数"""
+    sentences = split_into_sentences(text)
+    chunks = []
+    current_chunk = ""
+    
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) <= max_chars:
+            current_chunk += sentence
+        else:
+            if current_chunk:
+                chunks.append(current_chunk)
+            current_chunk = sentence
+    
+    if current_chunk:
+        chunks.append(current_chunk)
+    
+    return chunks
+
+def translate_in_chunks(text):
+    """改进的分块翻译逻辑"""
+    chunks = chunk_text(text)
+    if not chunks:
+        return ""
+    
     translated_chunks = []
     for i, chunk in enumerate(chunks):
-        print(f"[...] Translating chunk {i+1}/{len(chunks)}", flush=True)
+        print(f"[...] Translating chunk {i+1}/{len(chunks)} (size: {len(chunk)} chars)", flush=True)
         translated = translate_text(chunk)
         if translated is None:
-            return None
-        translated_chunks.append(translated)
-        time.sleep(1)
+            # 如果失败，尝试更小的分块
+            if len(chunk) > 500:
+                print(f"[!] Retrying with smaller chunks for failed chunk", flush=True)
+                sub_chunks = chunk_text(chunk, max_chars=500)
+                for j, sub_chunk in enumerate(sub_chunks):
+                    print(f"  [...] Sub-chunk {j+1}/{len(sub_chunks)}", flush=True)
+                    sub_trans = translate_text(sub_chunk)
+                    if sub_trans:
+                        translated_chunks.append(sub_trans)
+                    else:
+                        translated_chunks.append(f"[TRANSLATION FAILED: {sub_chunk[:50]}...]")
+            else:
+                translated_chunks.append(f"[TRANSLATION FAILED: {chunk[:50]}...]")
+        else:
+            translated_chunks.append(translated)
+        time.sleep(0.5)  # 减少API压力
+    
     return "".join(translated_chunks)
 
 def translate_text_node(text):
-    if len(text) > CHUNK_SIZE:
+    if not text.strip():
+        return text
+        
+    # 跳过代码块和特殊格式的翻译
+    if re.match(r'^[\s`#*\-|:>0-9]+$', text):
+        return text
+        
+    if len(text) > 1000:
         return translate_in_chunks(text)
     else:
         return translate_text(text)
@@ -92,6 +166,12 @@ def translate_ast_nodes(ast_nodes):
             # 保留 node['link'] 不变
         # 图片节点，不翻译路径和标题，保持原样
         elif t == 'image':
+            pass
+        # 代码块不翻译
+        elif t == 'code_block':
+            pass
+        # 内联代码不翻译
+        elif t == 'codespan':
             pass
         # 表格的表头、表格内容都在 children 里递归翻译
         elif 'children' in node:
@@ -215,11 +295,13 @@ def process_file(input_path, output_path):
         return True
     except Exception as e:
         print(f"[X] Error processing {input_path}: {str(e)}", flush=True)
+        import traceback
+        traceback.print_exc()
         return False
 
 def main():
     docs_dir = "./docs"
-    translated_dir = "translated"
+    translated_dir = "."
 
     if not os.path.exists(docs_dir):
         print(f"[!] Source directory not found: {docs_dir}", flush=True)
@@ -241,6 +323,9 @@ def main():
 
     success_count = 0
     failure_count = 0
+
+    # 先处理小文件测试
+    file_tasks.sort(key=lambda x: os.path.getsize(x[0]))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {
