@@ -14,9 +14,7 @@ REQUEST_TIMEOUT = 90
 CHUNK_SIZE = 4000  # 每块字符数上限
 MAX_WORKERS = 2   # 最大线程数
 
-
 def check_api_ready(base_url, retries=10, delay=5):
-    """检查翻译 API 是否就绪"""
     for attempt in range(1, retries + 1):
         try:
             response = requests.get(f"{base_url}/languages", timeout=10)
@@ -28,13 +26,10 @@ def check_api_ready(base_url, retries=10, delay=5):
 
         print(f"[...] Waiting for API... (attempt {attempt}/{retries})", flush=True)
         time.sleep(delay)
-
     print("[X] Translation API not ready after retries", flush=True)
     return False
 
-
 def translate_text(text, max_retries=MAX_RETRIES):
-    """翻译文本，带重试机制"""
     headers = {"Content-Type": "application/json"}
     data = {
         "q": text,
@@ -63,109 +58,152 @@ def translate_text(text, max_retries=MAX_RETRIES):
                 continue
             raise
 
+def translate_in_chunks(text, chunk_size=CHUNK_SIZE):
+    chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+    translated_chunks = []
+    for i, chunk in enumerate(chunks):
+        print(f"[...] Translating chunk {i+1}/{len(chunks)}", flush=True)
+        translated = translate_text(chunk)
+        if translated is None:
+            return None
+        translated_chunks.append(translated)
+        time.sleep(1)
+    return "".join(translated_chunks)
 
-def translate_ast(ast):
-    """递归翻译 AST 中所有文本节点"""
-    for node in ast:
-        t = node.get("type")
-        if t == "text":
-            node["text"] = translate_text(node.get("text", ""))
-        elif "children" in node and isinstance(node["children"], list):
-            # 特殊处理表格节点children结构
-            if t == "table":
-                for section in node["children"]:
-                    if "children" in section:
-                        for row in section["children"]:
-                            if "children" in row:
-                                for cell in row["children"]:
-                                    if "children" in cell:
-                                        translate_ast(cell["children"])
-            else:
-                translate_ast(node["children"])
-    return ast
-
-
-def render_node(node):
-    t = node.get("type")
-    if t == "text":
-        return node.get("text", "")
-    elif t == "paragraph":
-        return ''.join(render_node(child) for child in node.get("children", [])) + "\n\n"
-    elif t == "heading":
-        level = node.get("attrs", {}).get("level", 1)
-        return f"{'#' * level} {''.join(render_node(c) for c in node.get('children', []))}\n\n"
-    elif t == "block_code":
-        lang = node.get("attrs", {}).get("info", "")
-        return f"```{lang}\n{node.get('text', '')}\n```\n\n"
-    elif t == "block_quote":
-        body = ''.join(render_node(c) for c in node.get("children", []))
-        return '\n'.join(f"> {line}" for line in body.strip().splitlines()) + "\n\n"
-    elif t == "list":
-        ordered = node.get("attrs", {}).get("ordered", False)
-        result = []
-        for i, item in enumerate(node.get("children", [])):
-            bullet = f"{i+1}. " if ordered else "- "
-            item_text = ''.join(render_node(c) for c in item.get("children", [])).strip()
-            result.append(f"{bullet}{item_text}")
-        return '\n'.join(result) + "\n\n"
-    elif t == "link":
-        text = ''.join(render_node(c) for c in node.get("children", []))
-        url = node.get("attrs", {}).get("url", "")
-        return f"[{text}]({url})"
-    elif t == "image":
-        alt = node.get("attrs", {}).get("alt", "")
-        url = node.get("attrs", {}).get("url", "")
-        return f"![{alt}]({url})"
-    elif t == "table":
-        rows = node.get("children", [])
-        if not rows:
-            return ""
-        # 第一行是表头
-        header = rows[0]
-        header_cells = header.get("children", [])
-        header_line = '| ' + ' | '.join(
-            ''.join(render_node(c) for c in cell.get("children", [])) for cell in header_cells
-        ) + ' |'
-        divider = '| ' + ' | '.join('---' for _ in header_cells) + ' |'
-        body_lines = []
-        # 后续行是正文，注意行可能在section中
-        if len(rows) > 1:
-            body_section = rows[1]
-            for row in body_section.get("children", []):
-                line = '| ' + ' | '.join(
-                    ''.join(render_node(c) for c in cell.get("children", [])) for cell in row.get("children", [])
-                ) + ' |'
-                body_lines.append(line)
-        return '\n'.join([header_line, divider] + body_lines) + '\n\n'
+def translate_text_node(text):
+    if len(text) > CHUNK_SIZE:
+        return translate_in_chunks(text)
     else:
-        # 默认递归children
-        return ''.join(render_node(c) for c in node.get("children", []))
+        return translate_text(text)
 
+# 递归处理 AST，翻译所有文本节点，特殊结构保留格式
+def translate_ast_nodes(ast_nodes):
+    for node in ast_nodes:
+        t = node['type']
+        # 对 text 节点翻译
+        if t == 'text':
+            original_text = node.get('text', '')
+            translated = translate_text_node(original_text)
+            node['text'] = translated
+        # 对链接节点，翻译显示文本，不翻译链接地址
+        elif t == 'link':
+            if 'children' in node:
+                translate_ast_nodes(node['children'])
+            # 保留 node['link'] 不变
+        # 图片节点，不翻译路径和标题，保持原样
+        elif t == 'image':
+            pass
+        # 表格的表头、表格内容都在 children 里递归翻译
+        elif 'children' in node:
+            translate_ast_nodes(node['children'])
+    return ast_nodes
 
-def translate_markdown(content):
-    """将整个 Markdown 文本解析、翻译、渲染回文本"""
-    parser = mistune.create_markdown(renderer=mistune.AstRenderer())
-    ast = parser(content)
-    ast = translate_ast(ast)
-    translated = ''.join(render_node(node) for node in ast)
-    return translated
+# 把 AST 渲染回 Markdown 文本，保证格式
+def render_ast_to_markdown(ast_nodes):
+    lines = []
 
+    def render_node(node):
+        t = node['type']
+        if t == 'text':
+            return node.get('text', '')
+        elif t == 'paragraph':
+            content = ''.join(render_node(c) for c in node.get('children', []))
+            return content + '\n\n'
+        elif t == 'heading':
+            level = node.get('attrs', {}).get('level', 1)
+            content = ''.join(render_node(c) for c in node.get('children', []))
+            return f"{'#' * level} {content}\n\n"
+        elif t == 'list':
+            # 有序或无序
+            ordered = node.get('attrs', {}).get('ordered', False)
+            start = node.get('attrs', {}).get('start', 1)
+            items = node.get('children', [])
+            result = []
+            for idx, item in enumerate(items):
+                prefix = f"{start + idx}. " if ordered else "- "
+                # 列表项通常是段落节点的children
+                content = ''.join(render_node(c) for c in item.get('children', []))
+                # 保持缩进
+                result.append(prefix + content.replace('\n', '\n  '))
+            return '\n'.join(result) + '\n\n'
+        elif t == 'block_quote':
+            content = ''.join(render_node(c) for c in node.get('children', []))
+            # 每行加 >
+            content_lines = content.strip().split('\n')
+            quoted = '\n'.join('> ' + line for line in content_lines)
+            return quoted + '\n\n'
+        elif t == 'code_block':
+            info = node.get('attrs', {}).get('info') or ''
+            code = node.get('text', '')
+            return f"```{info}\n{code}```\n\n"
+        elif t == 'thematic_break':
+            return '---\n\n'
+        elif t == 'link':
+            href = node.get('link', '')
+            title = node.get('attrs', {}).get('title')
+            content = ''.join(render_node(c) for c in node.get('children', []))
+            title_part = f' "{title}"' if title else ''
+            return f"[{content}]({href}{title_part})"
+        elif t == 'image':
+            src = node.get('link', '')
+            title = node.get('attrs', {}).get('title')
+            alt = ''.join(render_node(c) for c in node.get('children', []))
+            title_part = f' "{title}"' if title else ''
+            return f"![{alt}]({src}{title_part})"
+        elif t == 'table':
+            # 先渲染表头
+            header = node.get('children', [])[0] if node.get('children') else None
+            aligns = node.get('attrs', {}).get('align', [])
+            body = node.get('children')[1:] if len(node.get('children', [])) > 1 else []
+
+            def render_table_row(row):
+                cells = row.get('children', [])
+                cell_texts = [''.join(render_node(c) for c in cell.get('children', [])) for cell in cells]
+                return '| ' + ' | '.join(cell_texts) + ' |'
+
+            if not header:
+                return ''
+
+            header_line = render_table_row(header)
+            # 根据对齐设置，构造分割行
+            align_map = {
+                'left': ':---',
+                'center': ':---:',
+                'right': '---:'
+            }
+            sep_cells = []
+            for i in range(len(header.get('children', []))):
+                align = aligns[i] if i < len(aligns) else None
+                sep_cells.append(align_map.get(align, '---'))
+            sep_line = '| ' + ' | '.join(sep_cells) + ' |'
+
+            body_lines = [render_table_row(row) for row in body]
+
+            return header_line + '\n' + sep_line + '\n' + '\n'.join(body_lines) + '\n\n'
+        else:
+            # 其它节点尝试递归子节点
+            if 'children' in node:
+                return ''.join(render_node(c) for c in node['children'])
+            return ''
+
+    for node in ast_nodes:
+        lines.append(render_node(node))
+
+    return ''.join(lines)
 
 def process_file(input_path, output_path):
-    """处理单个 Markdown 文件的翻译"""
     try:
         with open(input_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        if len(content) > CHUNK_SIZE:
-            # 长文本拆块翻译比较复杂，这里简单先整体翻译以免结构破坏
-            translated_content = translate_markdown(content)
-        else:
-            translated_content = translate_markdown(content)
+        markdown = mistune.create_markdown(renderer='ast')
+        ast = markdown(content)
 
-        if translated_content is None:
-            print(f"[X] Failed to translate {input_path}", flush=True)
-            return False
+        # 翻译 AST 中的所有文本
+        translate_ast_nodes(ast)
+
+        # 渲染回 Markdown
+        translated_content = render_ast_to_markdown(ast)
 
         output_dir = os.path.dirname(output_path)
         os.makedirs(output_dir, exist_ok=True)
@@ -179,10 +217,9 @@ def process_file(input_path, output_path):
         print(f"[X] Error processing {input_path}: {str(e)}", flush=True)
         return False
 
-
 def main():
     docs_dir = "./docs"
-    translated_dir = "."
+    translated_dir = "translated"
 
     if not os.path.exists(docs_dir):
         print(f"[!] Source directory not found: {docs_dir}", flush=True)
@@ -191,7 +228,6 @@ def main():
     if not check_api_ready(API_BASE_URL):
         sys.exit(1)
 
-    # 收集所有需要处理的文件
     file_tasks = []
     for root, _, files in os.walk(docs_dir):
         for file in files:
@@ -206,7 +242,6 @@ def main():
     success_count = 0
     failure_count = 0
 
-    # 使用线程池处理文件
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {
             executor.submit(process_file, input_path, output_path): (input_path, output_path)
@@ -227,7 +262,6 @@ def main():
     print(f"\nTranslation summary: {success_count} succeeded, {failure_count} failed", flush=True)
     if failure_count > 0:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
