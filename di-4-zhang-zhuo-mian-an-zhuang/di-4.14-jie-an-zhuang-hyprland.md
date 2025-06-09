@@ -1,0 +1,804 @@
+# Section 4.14 Hyprland
+
+Hyprland is a Wayland compositer that supports transparent windows, fuzzy, round corners, etc.
+
+[hyprland on freebsd]
+
+# Install Hyprland
+
+- Install with pkg:
+
+```sh '
+# pkg in hyprland waybar qt6-base qt5-wayland qt6-wayland xdg-desktop-portal-hyprland hypricker swaybg mako nerd-fonts slurp gim swaylock
+````
+
+- Or install with Ports:
+
+```sh '
+#cd /usr/ports/x11-wm/hyprland/ & make install clean
+#cd /usr/ports/x11/waybar/ & make install clean
+# cd /usr/ports/x11/wof/ & make install clean
+#cd/usr/ports/devel/qt6-base/ & make install clean
+#cd /usr/ports/graphics/qt5-wayland/ & make install clean
+#cd /usr/ports/graphics/qt6-wayland/ & make install clean
+#cd /usr/ports/x11/xdg-desktop-portal-hyprland/ & make install clean
+#cd /usr/ports/x11/hyprpicker/ & make install clean
+# cd /usr/ports/x11/swaybg/ & make install clean
+#cd /usr/ports/x11/mako/ & make install clean
+#cd /usr/ports/x11-fonts/nerd-fonts/ & make install clean
+# cd /usr/ports/x11/slurp/ & make install clean
+#cd /usr/ports/x11/grim/ & make install clean
+# cd/usr/ports/x11/swaylock/ & make install clean
+#cd /usr/ports/x11-fm/dolphin/ & make install clean
+# cd /usr/ports/x11/kitty/ & make install clean
+````
+
+
+Note**
+>
+> Automatically install dbus and wayland as a dependency.
+
+- Explain:
+
+Name of package Description of role
+|:-----------------------------------------------------------------
+`hyprland ' | Dynamic Wallland Synth
+| `waybar ' | GTK status bar designed for wloots synthesisers (e. g. Hyprland)
+| `fifi ' | program starter (or rofi can also be used to understand) |
+`qt6-base ' Basic module `Qt 6
+The Wayland Support Module for `qt5-wayland ' Qt 5 allows Qt 5 applications to run in the Wayland environment. Zenium
+`qt6-wayland 'Wayland Support Module for `qt6-wayland ' Qt 6 allows Qt 6 applications to run in the Wayland environment. Zenium
+XDG Designtop Portal of `xdg-desktop-portal-hyprland ' |Hyprland
+`hyprpecker ' | Colour Selector
+`swaybg ' wallpaper tool
+`mako ' display notification |
+The `nerd-fonts ' icon font that can be used to insert a pattern in the configuration file to show the `waybar ' and so on
+`slurp ' | screen selection tool to be used on screen for constituencies
+`grim ' screenshot tool
+`swaylock ' | lock-up tool
+`kitty ' terminals
+|dolphin ' |file manager
+
+
+# Start service
+
+```sh '
+♪ Service sead enough
+# For service dbus able
+````
+
+# First time on Hyprland
+
+> ** Important**:
+>
+> If XDG_RUNTIME_DIR is not set to start the error tip, you can make the settings below. ** Here's the example of zsh as the default shell:**
+>
+> Write in ~/.zprofile ' : (If the default shell is sh, write ~/.profile, echo $0 to show the default shell)
+>
+> ```sh '
+>export XDG_RUNTIME_DIR=/var/run/user/`id-u '
+> ````
+>
+> Then restart: `reboot '
+>
+>
+>Ctrl+Alt+F2 enter tty to execute `ck-launch-session Hyprland ' , which will generate a default profile at ~/.config/hypr ' .
+
+Configure
+
+
+If you need to start automatically, write in ~/.zprofile ' :
+
+```sh '
+ck-launch-session
+````
+
+If the default shell is sh, write to ~/.profile ' may also specify the configuration file 'Hyprland -c profile path '
+The focus of the Hyprland window differs from that of the traditional desktop, which is the window on which the mouse cursor is placed (it is " put " , which does not need to click), where the focus of the window is, without the shortcut of Alt+Tab.
+
+## Configure hyprland.conf
+
+Document location: ~/.config/hypr/hyprland.conf '
+
+- Hyprland's default top will have a yellow strip warning sign. Profiles can comment on it, find this line and comment on `#autogenated = 1 '
+- Default with the Windows logo key (Unix type, Super key, same below) as the mod key (Personal custom setting, Alt key, etc.) '$mainMod = SUPER '
+- Suspended windows and traditional desktop environments act in a manner similar to that in which you can drag to any position on the screen at will, and the window size can be adjusted with the mouse. The default configuration file is to hold down the mod key, and then the left mouse button is to hold the suspended window to drag the window to move, while the right button tow the window to adjust the size of the window. Sets the default suspended window: `windowrulev2 = float, type: QQ '
+- It is recommended to read the configuration file below, hyprland.conf, swaybg to set the wallpaper and to change the path to your own photo file.
+
+5. Task column: `exec-once=waybar '
+
+`hyprland.conf ' Example:
+
+```sh '
+# Automatically start fcitx5 after entering Hyprland (denoted, self-removed after installation under Chapter 5.2)
+#exec-once =fcitx5
+Set the wallpaper, and don't forget to change the path to your own wallpaper file!
+#exec-once=swaybg-i "$HOME/Pictures/wallpapers/wallpapers.jpg"
+# Taskbar
+Exec-once=waybar
+#Swaylock Lock
+I don't know, exec-once = swayidle-w timeout 300 'swaylock'
+
+♪ Please note not all available settings / options are set here.
+For a full list, see the wiki
+
+# autogenerated = 1
+
+#See https://wiki.hyprland.org/Configuring/Monitors/
+== sync, corrected by elderman ==
+
+#See https://wiki.hyprland.org/Configuring/Keywords/ for more
+
+Sourci don't know, you know, a file.
+# source=~/.config/hypr/myColors.conf
+
+Some default env vars.
+_Other Organiser
+
+# For all cases, see https://wiki.hyprland.org/Configuring/Variables/
+Input {
+kb_playout = us
+kb_variant =
+kb_model =
+kb_options =
+kb_rules =
+
+Follow_mouse = 1
+
+Touchpad
+= no
+♪ I'm sorry ♪
+
+Sensitivity is 0 #-1.0, 0 means no sexualization.
+♪ I'm sorry ♪
+
+_Other Organiser
+#See https://wiki.hyprland.org/Configuring/Variables/ for more
+
+Gaps_in = 5
+Gaps_out = 20
+border_size = 2
+= rgba (33ccffee) rgba (00ff99ee) 45deg
+= rgba(595959aa)
+
+= dwindle
+♪ I'm sorry ♪
+
+Animations
+= yes
+
+# Some disputes animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
+
+Bezier = my Bezier, 0.05, 0.9, 0.1, 1.05
+
+Animation = window, 1, 7, my Bezier
+= windowout, 1, 7, default, popin 80%
+Animation = border, 1, 10, default
+Animation = borderline, 1, 8,
+Animation = fade, 1, 7, default
+Animation = workspaces, 1, 6,
+♪ I'm sorry ♪
+
+Dwindle
+#See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
+Enabling is based to MainMod + P in the keybinds section below
+♪ You probably want this ♪
+♪ I'm sorry ♪
+
+You're not gonna get me started.
+#See https://wiki.hyprland.org/Configuring/Variables/ for more
+= off
+♪ I'm sorry ♪
+
+# Window rules
+#See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
+Windowrulev2=float, title:rofi.*
+== sync, corrected by elderman == @elder_man
+Windowrulev2 = float, type: Picture Viewer
+
+
+#See https://wiki.hyprland.org/Configuring/Keywords/ for more
+$mainMod = SUPER
+US$ShiftMod = SUPER_SHIFT
+$altMod=SUPER_ALT
+$alt=alt
+US$Shift=SHIFT
+
+#Example binds, see https://wiki.hyprland.org/Configuring/ Binds/ for more
+= $mainMod, Q, exec, kitty #open terminal
+Bind = $mainMod, C, Killactive, # Close Window
+bind = $mainMod, M, exit, # written off
+Bind = $mainMod, E, exec, toolin# File Manager
+bind = $mainMod, V, togglefloating, # Switch to suspended window, drag
+Bind = $mainMod, R, exec, wife-show drun # Software starter, similar menu
+Bind = $mainMod, P, pseudo, # Focus Window (the window to which the cursor is directed) freely adjusts the size and position within the area where the flat window was originally occupied
+Bind = $mainMod, J, togglespit, # Regulates the direction of the focus window and the layout of the adjacent window, up and down, or left and right.
+# I got a screenshot #
+$screen_file=${HOME}/screen_shot_$(date + "%Y-%m-%d_%H-%M-%S".png
+I'm sorry, I'm sorry.
+I'm sorry.
+Bend=$Shift, Print, exec, Grim-g '$lorp'
+It's just that, uh, you know, it's kind of like, uh...
+
+# Move focus with MainMod #
+=$mainMod, left, movefocus, l
+== sync, corrected by elderman ==
+=$mainmod, up, movefocus, u
+=$mainMod, down, movefocus, d
+
+# Switch workspaces with MainMod #
+# Toggle workspace meinmod+number keys, 1 to 0 corresponds to 10 workspaces.
+=$mainMod, 1, workspace, 1
+== sync, corrected by elderman ==
+== sync, corrected by elderman ==
+=$mainmod, 4, workspace, 4
+=$mainmod, 5, workspace, 5
+=$mainmod, 6, workspace, 6
+=$mainMod, 7, workspace, 7
+=$mainMod, 8, workspace, 8
+=$mainMod, 9, workspace, 9
+=$mainmod, 0, workspace, 10
+
+# Move active window to a workspace with MainMod + SHIFT + [0-9]
+# Move window to another workspace, e. g.mainmod+Shift+2 (win key +2 is viewing workspace 1)
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+=$mainMod SHIFT, 3, movetoworkspace, 3
+=$mainMod SHIFT, 4, movetoworkspace,4
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+
+# Scroll through the existing workspace using plainMod + mouse wheel
+=$mainMod, mouse_down, workspace, e+1
+== sync, corrected by elderman == @elder_man
+
+# Move/resize Windows with MainMod + LMB/RMB and Draging
+== sync, corrected by elderman == @elder_man
+== sync, corrected by elderman == @elder_man
+
+````
+
+# Configure Kitty.conf
+
+Document location: ~/.coexample: nfig/kitty/kitty.conf '
+
+```sh '
+Look and feel
+
+# Color
+#aclude... /obsidian.color.conf
+
+# Font Settings
+Font_family Hassklug Nerd Font Mono
+font_size 14.0
+#font_features FiraCodeNerdFontCompleteM-Retina +ss02 +ss03 +ss04 +ss05 +ss07 +Zero
+
+# Text Cursor Settings
+Cursor_blink_interval 2.0
+Cursor_stop_blinking_after 5.0
+
+# Scrollback
+Scrollback_lines-1
+
+# Mouse-related settings
+Copy when selected
+Mouse_side_wait 2.0 # Hide mouse on time
+
+# A hint #
+It's not a bad idea.
+visual_bell_duration 0.3
+bell_on_tab yes
+
+# Tabs
+Tab_bar_edge top
+Tab_bar_style powerline
+Tab_powerline_style angled
+#invited_tab_foreground #111
+I'm sorry, but I'm sorry.
+Active_tab_font_stylebar
+#666
+#inactive_tab_background #888
+Tab_bar_background #444
+Inactive_tab_font_style normal
+Tab_title_template"fmt.fg.gray"
+"active_tab_title_template"
+
+# Mechanics
+Input_delay 2
+I don't know.
+Allow_remote_control no
+Allow_hyperlinks no
+xm-256color
+Macos_option_as_alt yes
+Macos_quit_wen_last_window_closed yes
+stip_training_spaces smart
+You know, update_check_interval 72
+Hind_window_descriptionstitlebar-only
+
+# Shortcuts
+I'm not sure if I'm going to do this.
+
+The deaths
+@text tab pbcopy
+Map ctrl+Shift+c copy_to_clipboard
+_clipboard
+Map ctrl+alt+j scroll_page_up
+Map ctrl+alt+k scroll_page_down
+I'm sorry.
+
+# Tab Management
+{\cHFFFFFF}map ctrl+t new_tab_wd!neigbor
+Map alt+s next_tab
+Map alt+a previous_tab
+Map alt+q close_tab
+Map ctrl+s set_tab_title
+Map ctrl+ship+lift move_tab_backward
+Map ctrl+Shift+right move_tab_forward
+Map alt+1 goto_tab1
+Map alt+2 goto_tab2
+Map alt+3 goto_tab 3
+Map alt+4 goto_tab 4
+Map alt+5 goto_tab 5
+Map alt+6 goto_tab 6
+Map alt+7 goto_tab7
+Map alt+8 goto_tab8
+Map alt+9 goto_tab9
+
+# Text size adjustment
+Map ctrl+equal change
+I'm sorry, miss ctrl+minus change
+Map ctrl+0 change
+
+#include$US$.conf
+
+````
+
+## # Configure waybar (taskbar)
+
+The configuration file directory of the waybar contains a `config.jsonc ' file in the `.config/waybar ' folder in the home directory, and a `style.csss '. The waybar folder using the example profile can be consulted. An example profile requires the installation of a noto-enoji font to display it properly, or to change it to the icon you want.
+
+Example:
+
+```json '
+_Other Organiser
+"position": "top,"
+"player": "top",
+"Height": 16,
+"Margin-top": 0,
+"Margin-bottom": 0,
+"margin-leaft": 0,
+"Margin-right": 0,
+"modules-left": ["custom/launcher", "wlr/workspaces", "custom/playerctl", "custom/playerlabel"],
+"modules-center": ["cpu", "memory", "disk,"
+"Modules-right": ["Tray", "custom/Randwall", "network", "pulseudio", "clock"]
+"clock":
+Format: {H:%M},
+"tooltip": "true,"
+"Tooltip-format": "%big"
+"format-alt": "🗓️y/%m/%d}"
+♪ I don't know ♪
+
+
+"wlr/workspaces":
+"active-only."
+"all-outputs": true,
+"disable-scroll."
+"on-scroll-up": "hypctl dispatch workspace-1,
+"on-scroll-down": "hypctl dispatch workspace +1",
+"format,"
+"on-click": "activate,"
+"format-icons":
+"urgent":
+"active":
+"default,"
+"sort-by-number": true
+♪ I don't know ♪
+♪ I don't know ♪
+
+"custom/playerctl":
+"format,"
+"return-type": "json,"
+"max-length": 64,
+"exec": "playerl-a metadata-format '("text\:}artist}" -{markup_escape(title}, \tooltip\:}playerName}: \markup_escape(title)\, \alt\:\status}, \class\:\
+"on-click-middle": "playercl play-pause,"
+"on-click": "playercl previous,"
+"on-click-right": "playercl next,"
+"format-icons":
+"Playing":I don't know.
+"Paused":
+♪ I don't know ♪
+♪ I don't know ♪
+
+"custom/playerlabel": {
+"format,"
+"return-type": "json,"
+"max-length": 48,
+"exec": "playerl-a metadata-format '("text\:}artist}" -{markup_escape(title}, \tooltip\:}playerName}: \markup_escape(title)\, \alt\:\status}, \class\:\
+"on-click-middle": "playercl play-pause,"
+"on-click": "playercl previous,"
+"on-click-right": "playercl next,"
+"format-icons":
+"Playing":
+"Paused":
+♪ I don't know ♪
+♪ I don't know ♪
+
+"Memory":
+"format": "🌊,"
+"format-alt": "Total"
+"interval": 5.
+♪ I don't know ♪
+
+"cpu":
+"format": "📟usage}"
+"format-alt":
+"interval": 5.
+♪ I don't know ♪
+
+"disk": {
+"format": "📦,"
+"format-alt": "Total"
+"interval": 5,
+"Path"...
+♪ I don't know ♪
+
+"network":
+/ "Format-ethernet": "Ifname": ipaddr"
+"Format-ethernet":
+/ "Format-linked": "Ifname} (No IP)"
+"format-disconnected,"
+/ "Format-alt": "Ifname}: ipaddr}/cidr}"
+"tooltip-format,"
+"on-click-right": "nm-convention-editor"
+♪ I don't know ♪
+
+"tray":
+"icon-size": 16,
+"spacing": 5
+♪ I don't know ♪
+
+"backlight":
+"format": "%"
+"Format-icons": ["F", "P", "P", "P", "P", "P", "P", "P", "P" and "P"],
+♪ I don't know ♪
+
+"Pulseudio":
+"format": "I can't believe it."
+"Format-muded": "P"
+"format-icons":
+"default"...
+♪ I don't know ♪
+"scroll-step": 5,
+♪ I don't know ♪
+"Custom/Launcher":
+"Format": "P"
+"on-click": "wifi-how drun,"
+"on-click-right": "wifi-how drun"
+♪ I don't know ♪
+♪ I'm sorry ♪
+
+````
+
+Example: `style.css '
+
+```css '
+*
+border: none;
+border-radius: 0px;
+*font-family: Victor Mono, Iosevka Nerd Font, Noto Sans CJK;*
+From-family: Cascadia Code, FontAwesome, Noto Sans CJK, Microsoft, HarmonyOS Sans;
+font-size: 14px;
+Fort-style: normal;
+Min-health: 0;
+♪ I'm sorry ♪
+
+Windows#waybar
+Background: ragba (30, 30, 46, 0.5);
+border-bottom: 1 px solid #282828;
+#f4d9e1
+♪ I'm sorry ♪
+
+#workspaces #
+#282828;
+Margin: 5px 5px 5px 5px 5px;
+Paddy: 0px 5px 0px 5px;
+border-radius: 16px;
+border: solid 0px #f4d9e1
+Fort-right: normal;
+Fort-style: normal;
+♪ I'm sorry ♪
+#workspaces button
+Paddy: 0px 5px;
+border-radius: 16px;
+color: #928374;
+♪ I'm sorry ♪
+
+#workspaces button.
+#f4d9e1;
+Background-color: transfer;
+border-radius: 16px;
+♪ I'm sorry ♪
+
+#workspaces button: cover #
+#E6B9C6;
+color: black;
+border-radius: 16px;
+♪ I'm sorry ♪
+
+# Custom-date, #clock, #battery, #pulseaudio, #network, # Custom-randwall, # Custom-launcher
+I don't know.
+Paddy: 5px 5px 5px 5px 5px;
+Margin: 5px 5px 5px 5px 5px;
+border-radius: 8px;
+border: solid 0px #f4d9e1
+♪ I'm sorry ♪
+
+#Custom-date
+#D3869B;
+♪ I'm sorry ♪
+
+#Custom-power
+color: #24283b;
+#db4b4b;
+border-radius: 5px;
+Margin-right: 10px;
+Margin-top: 5px;
+Margin-bottom: 5px;
+Margin-loft: 0px;
+Paddy: 5px 10px;
+♪ I'm sorry ♪
+
+#tray
+#282828;
+Margin: 5px 5px 5px 5px 5px;
+border-radius: 16px;
+Paddy: 0px 5px;
+/*border-right: solid 1px #282738;*/
+♪ I'm sorry ♪
+
+#clock #
+#E6B9C6;
+#282828;
+border-radius: 0px 0px 24px;
+Paddy-loft: 13px;
+Paddy-right: 15px;
+Margin-right: 0px;
+Margin-loft: 10px;
+Margin-top: 0px;
+Margin-Bottom: 0px;
+Fort-right:
+/*border-left: solid 1px #282738;*/
+♪ I'm sorry ♪
+
+
+#Battery
+#9ece6a;
+♪ I'm sorry ♪
+
+#Battery.charging
+#9ece6a;
+♪ I'm sorry ♪
+
+#battery.warning:not (.charging)
+#f7768e;
+color: #24283b;
+border-radius: 5px 5px 5px 5px 5px;
+♪ I'm sorry ♪
+
+#backlight
+#24283b;
+#db4b4b;
+border-radius: 0px 0px 0px 0px;
+Margin: 5px;
+Margin-loft: 0px;
+;margin-right: 0px;
+Paddy: 0px 0px;
+♪ I'm sorry ♪
+
+#network
+#f4d9e1;
+border-radius: 8px;
+Margin-right: 5px;
+♪ I'm sorry ♪
+
+#Pulseudio
+#f4d9e1;
+border-radius: 8px;
+Margin-loft: 0px;
+♪ I'm sorry ♪
+
+#Pulseudio.muded
+I don't know.
+color: #928374;
+border-radius: 8px;
+Margin-loft: 0px;
+♪ I'm sorry ♪
+
+# Custom-Randwall
+#f4d9e1;
+border-radius: 8px;
+Margin-right: 0px;
+♪ I'm sorry ♪
+
+#Custom-Launcher
+#e5809e;
+#282828;
+border-radius: 0px 24px 0px 0px;
+Margin: 0px 0px 0px 0px;
+Paddy: 0 20px 0 13px;
+/*border-right: solid 1px #282738;*/
+font-size: 20px;
+♪ I'm sorry ♪
+
+#Custom-Launcher button: cover #
+#FB4934;
+color: transport;
+border-radius: 8px;
+Margin-right: -5px;
+Margin-loft: 10px;
+♪ I'm sorry ♪
+
+#Custom-playerctl
+#282828;
+Paddy-loft: 15px;
+Dading-right: 14px;
+border-radius: 16px;
+/*border-left: solid 1px #282738;*/
+/*border-right: solid 1px #282738;*/
+Margin-top: 5px;
+Margin-bottom: 5px;
+Margin-loft: 0px;
+Fort-right: normal;
+Fort-style: normal;
+font-size: 16px;
+♪ I'm sorry ♪
+
+# Custom-playerlabel
+I don't know.
+Paddy-loft: 10 px;
+Paddy-right: 15px;
+border-radius: 16px;
+/*border-left: solid 1px #282738;*/
+/*border-right: solid 1px #282738;*/
+Margin-top: 5px;
+Margin-bottom: 5px;
+Fort-right: normal;
+Fort-style: normal;
+♪ I'm sorry ♪
+
+#window #
+#282828;
+Paddy-loft: 15px;
+Paddy-right: 15px;
+border-radius: 16px;
+/*border-left: solid 1px #282738;*/
+/*border-right: solid 1px #282738;*/
+Margin-top: 5px;
+Margin-bottom: 5px;
+Fort-right: normal;
+Fort-style: normal;
+♪ I'm sorry ♪
+
+#Custom-wf-recorder
+Paddy: 0 20px;
+#e5809e;
+#1E1E2E;
+♪ I'm sorry ♪
+
+#cpu #
+#282828;
+/*color: #FABD2D;*/
+border-radius: 16px;
+Margin: 5px;
+Margin-left: 5px;
+Margin-right: 5px;
+Paddy: 0px 10px 0px 10px;
+Fort-right:
+♪ I'm sorry ♪
+
+# Memoory #
+#282828;
+/*color: #83A598;*/
+border-radius: 16px;
+Margin: 5px;
+Margin-left: 5px;
+Margin-right: 5px;
+Paddy: 0px 10px 0px 10px;
+Fort-right:
+♪ I'm sorry ♪
+
+#disk
+#282828;
+/*color: #8EC07C;*/
+border-radius: 16px;
+Margin: 5px;
+Margin-left: 5px;
+Margin-right: 5px;
+Paddy: 0px 10px 0px 10px;
+Fort-right:
+♪ I'm sorry ♪
+
+#Custom-hyprappy
+#282828;
+/*color: #8EC07C;*/
+border-radius: 16px;
+Margin: 5px;
+Margin-left: 5px;
+Margin-right: 5px;
+Paddy: 0px 11px 0px 9px;
+Fort-right:
+♪ I'm sorry ♪
+
+````
+
+Configure
+
+The profile for swaylock is in ~/.config/swaylock/config ' . The following is an example profile:
+
+```sh '
+This post is part of our special coverage Global Voices 2011.
+Font=Fira Sans Compressed
+
+No, I'm not.
+Timestr=%R
+Datestr=%a, %e of %B
+
+Screenshots
+
+Fade-in = 0.2
+
+effect-blur=20x2
+#effect-grayscale
+effect-scale = 0.3
+
+Indicator
+Indicator-radius = 360
+Indicator-thickness=60
+Indicator-caps-lock
+
+Key-hl-color=228833
+
+separator-color=000000000
+
+Inside-color=00000099
+Inside-clar-color=ffd20400
+Inside-caps-lock-color=009ddc00
+Inside-ver-color=d9d8d800
+Inside-wrong-color=ee2e2400
+
+r-color=231f20D9
+r-clar-color=231f20D9
+ring-caps-lock-color=231f20D9
+r-ver-color=231f20D9
+Ring-wrong-color=231f20D9
+
+Line-color = 10000000
+Line-clar-color=ffd2000
+Line-caps-lock-color=009ddc00
+line-ver-color=d9d8d800
+Line-wrong-color=ee2e2400
+
+text-clar-color=ffd20400
+text-ver-color=d9d8d800
+text-wrong-color=ee2e2400
+
+bs-hl-color=ee2e24FF
+#caps-lock-key-hl-color=ffd204FF
+#caps-lcok-key-hl-color=ee2e24FF
+#caps-lock-bs-hl-color=ee2e24FF
+#disable-caps-lock-text
+text-caps-lock-color=000000FF
+````
+
+# Fragmentation and unfinished business
+
+If startup failed, or black screens failed, check whether your user has been added to the `video ' group, whether a graphic card driver has been installed, and whether the environment variable `XDG_RUNTIME_DIR ' has been set correctly and is not valid.
+
+# References
+
+- [Hyprland Configuration North under ArchLinux] (https://www.bilibili.com/read/cv22707313/)
+- [Hyprland configuration] (https://nth233.top/posts/203-02-26-Hyprland%E9%E85%8D%E7%BD%AE)
