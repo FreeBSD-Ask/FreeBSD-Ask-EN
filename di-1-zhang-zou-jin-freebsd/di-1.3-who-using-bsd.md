@@ -1,0 +1,18 @@
+# Section 1.3 who's using FreeBSD
+
+[who's using FreeBSD]
+
+Image source [FreeBSD Foundation Advocacy Map] (https://i.imgur.com/qW0IePB.png)
+
+- The special effects of the Warner Brothers film [The Hacker Empire] (https://movie.douban.com/subject/1291843/)* (https://www.imdb.com/title/tt033093/*) were produced in a FreeBSD cluster.  ♪ FreeBSD Used to General Spectacular Special Affairs  ♪ (https://www.freebsd.org/press/press-rel-1/) and [FreeBSD technology inner] (https://book.douban.com/subject/1240853/) (Chinese translation), Mechanical Industry Press. ISBN 7-111-10201-0, page 2。
+- Apple's operating systems, such as MacOS and IOS, are heavily reused of BSD (not just FreeBSD) technology. BSD can be described as an open-source building block for MacOS. - See [The BSD Helitage Behind MacOS and iOS] (https://thenewstack.io/apples-open-source-roots-the-bsd-heritage-behind-macos-and-ios/)
+- Operating systems for PlayStation 3 (PS3), PlayStation Vita (PSV), PlayStation 4 (PS4), and PlayStation 5 (PS5). See the Soni Network of Officials [FreeBSD Kernel] (https://www.playstatation.com/en-us/oss/ps4/freebsd-kernel/), [Free BSD License] (https://www.playstatation.com/en-us/ps3/free-bsd/), [FreeBSD] (https://www.playstatation.com/en-us/oss/ps-vita/). PS 5 does not list permits, but according to [Kernel] (https://www.psdevwiki.com/ps5/index.php?title=Kernel). FreeBSD 11 is still used。
+- Almost all Netflix network activities (content cache/CDN) are conducted using FreeBSD devices. _Refer to [Netflix Case Standard] (https://freebsdfoundation.org/netflix-case-study/)
+- QNX operating system. QNX is a real-time operating system. QNX used to be a BlackBerry operating system. QNX is now widely used as a vehicle security operating system (i.e., a motor,** Andre is an operating system that runs on QNX and is separated from the engine system**). QNX operating systems (over 90 per cent in key areas) are commonly used in new domestic energy vehicles. QNX heavily reuses FreeBSD technology. — See [QNX] (https://www.qnx.com/developmenters/docs/8.0/search.html?searchQuery=freebsd), [chinese cars should be able to do both] (http://auto.ce.cn/auto/gundong/202407/31/t2020731_39088063.shtml), [Automotive] (https://www.qnx.com/content/qnx/cn/soltions/industries/automotive/). Also consult FreeBSD Foundation 2024 [Contribution Page] (https://freebsdfoundation.org/our-donors/donors/?donationyear=2024), which also includes BlackBerry (QNX developer)。
+- Dell EMC Isilon, the operating system used by Isilon (business-oriented NAS storage equipment) equipment, OneFS is based on FreeBSD. — See [PowerScale OneFS: United Source-based Paths] (https://www.dell.com/support/kbdoc/zh-cn/00000020056/isilon-onefs- unerstanding-source-based-routing-sbr-in-isilon?lang=zh) with an explicit reference to “OneFS is based on FreeBSD”. See also security reports [DSA-2020-086: Dell EMC Isilon OneFS Security Update for FreeBSD libfetch Vulnerability] (https://www.dell.com/support/kbdoc/00153860/dsa-2020086-dell-emc-esilon-onefs-security-update-for-freebsd-libfetch-vulnerability?lang=en). Annex [Isilon Systems] (https://wiki.freebsd.org/IsilonSystems)
+- Beckhoff Operation System of the Automated Control System (ACP) at Beckhoff TwinCAT/BSD. _Refer to [TwinCAT/BSD] (https://www.beckhoff.com/en-en/products/ipc/software-and-tools/twincat-bsd/)
+- Open Harmony LiteOS kernel has introduced some FreeBSD code for drive, etc. _Refer to [kernel_liteos_a] (https://gitee.com/openharmony/kernel_liteos_a/tree/master)
+
+# References
+
+- [who's using FreeBSD] (https://book.bsdcn.org/fan-yi-wen-zhang-cun-dang/2025-nian-1-yu/di-1.5-jie-shui-zai-shi-yong-freebsd), an official version of the FreeBSD Foundation

@@ -1,0 +1,347 @@
+# Edit Log Archive
+
+# 2025, first quarter
+
+- 2025.3.31
+- migration of mirror sites to <https://docs.bsdcn.org/>
+- 2025.3.30
+- Deployment of mirror site temporarily located at <https://freebsd-ask.github.io>, using VitePress
+- 2025.3.29
+- Generate a PDF document every day from now on in Github release
+- Generate new Windows 24H2 font packages for Github Action
+- REWRITE PDF EXPORT TOOL
+- 2025.3.27
+- Add "vsftpd" to "Section 16.1 FTP Servers"
+- Introduction of Github Action: Update directory from SUMMARY.md
+- Introduction of Github Action: Check SUMMARY.md Directory
+- Introduction of Github Action: Create and publish PDF documents to generate a PDF document every five days from now on in Github release
+- 2025.3.26
+- Rewrite "Pure-FTPd" (based on MySQL)
+- Rewrite "ProFTPD" (based on MySQL)
+- "Section 2.2 Base of command line (new introductory version)" add "the difference between UNIX and Windows filenames"
+- 2025.3.25
+- Add "Section 15.5 Fail2Ban (based on IPFW, PF, IPF)"
+- Section 12.2 FreeBSD EFI Lead Management merged with Section 12.5 Grub & UEFI and efibootmgr
+- 2025.3.24
+- Tests Section 4.2 Installing KDE6, which is incompatible with VMware's virtual graphic cards. Scaled, mouse seamlessly switched. Note: USTC sources may be problematic。
+- Reword "Expression"
+based on [clean-master/freebsdcn] (https://github.com/clean-master/freebsdcn/graphs/contributors), the start of the project was corrected to 14 march 2021. also identify the historical contributions of the clean-up master。
+- Rewrite "Use FreeBSD Remote Other Machines" in "Section 4.23 Remote Desktop Management"
+- 2025.3.23
+- Format the whole book。
+- Test " 21.4 Linux Compatibility Layer - Based on ArchLinux Bootstream" at 14.2
+- Correcting full-text invalids and photo references
+- 2025.3.22
+- SECTION 3.6 UPDATE TO 14.2 THROUGH DVD INSTALLATION SOFTWARE. NOTE THAT __CODESPAN_0_FAILURE TO TEST THE METHOD OF INSTALLING SOFTWARE VIA DVDS
+- Initial rewrite "Section 22.0 How to subscribe to FreeBSD mailing lists"
+- Reorder the chapters of the book and rename the titles of the chapters of the book to fit the actual contents
+- Delete "Section 2.8 Pre-Figure of Virtual Machines" and expire
+- Compress “Chapter 25 TwinCAT/BSD”
+- Deletion of contributions, notes, no substance
+- Delete Section 24.4 Disable Sendmail, expired
+- Delete section 5.8 Wine, without substance
+- “Section 6.6 Ext 2/3/4 file system” has been rewrited and is still to be tested
+- delete "section 9.1 jail versus docker" without substance
+- SECTION 14.6 USB ETHERNET CARDS AND USB WIRELESS CARDS MERGED INTO SECTION 14.5 USB & ETHERNET CARDS
+- Delete "section 24.2 BSD style make/grep/sed/awk" without substance
+- Delete Chapter 13 DTrace, no substance
+- "Chapter 12 FreeBSD Directory Note" merged with "Chapter 13 FreeBSD System Management"
+- Delete Section 10.1 FreeBSD installation Virtual Box, without substance
+- SECTION 6.1 UFS WAS MERGED INTO SECTION 6.3 DISK AMPLIFICATION BECAUSE THERE WAS NO SUBSTANTIVE CONTENT
+- Section 1.5 FreeBSD Development Scheme moved to a web article collection
+- Delete "Section 18.4 USB netcards and WiFi" and repeat with other chapters
+- "Section 18.6 Berry pie 5" merged into "Section 18.2 Berry pie installation FreeBSD" and deleted redundant output
+- Rewrite "Section 17.7 Telegraf+InfluxDB+Grafana monitoring platform"
+- Rewrite Section 6.6 Linux File System
+- Preliminary rewrite of Section 1.4 Linux User Migration Guide
+- 2025.3.21
+- Rewrite "Section 22.9 Shell"
+- add section 24.3 bsdconfig configuration tool
+- Rewrite "Section 5.9 Compression and Relief"
+- SECTION 2.1 BASE OF COMMAND LINE (NEW INTRODUCTORY VERSION)
+- Delete Section 22.11 Git, since there is no actual content and useful orders have been scattered throughout the entire section
+- Rename the chapter titles of the entire book to fit the actual contents
+- 2025.3.20
+- "section 11.7 base of command lines" move to "section 2.7 use of free text editor ee" becomes "section 2.7 base of command lines (new initial version)" and move to "section 2.1 base of command lines (new initial version)"
+- "SECTION 15.1 NETWORK PARAMETER CONFIGURATION COMMAND" TO ADD __CODESPAN_0_RELEVANT. NOTE: THIS PART WILL NEED TO BE SUPPLEMENTED BY CODESPAN_1 AND CODESPAN_2_ PRELIMINARY ORDERS。
+- Add Screen Saver to Section 23.4 Lead Interface
+- An explanation of the original name has been added to most orders in Chapter 1-5。
+- 2025.3.19
+- “section 11.7 basis of the command line” to be added “thefuck: an order for automatic correction of spelling errors”, noting that authorized developers appear to be on the run
+- “Section 11.7 Basis of the Order Line” Additional Base Order
+- Initial rewrite "Section 8.4 User Permissions"
+- 2025.3.18
+- "Section 6.3 Disk amplification"
+- Move Section 1.5 who is using FreeBSD (official version of the Foundation) and Section 1.7 FreeBSD feature development project to an article collection. This part is too long。
+- Add "Section 11.7 Basis of Command Line"
+- 2025.3.9
+- Add "vim-codefmt code beautification" to "Section 22.4 C/C++ environment configuration"
+- 2025.3.7
+- "Section 5.4 Install Firefox and Chromium" Add "Chromium Sync with Google Account"
+- 2025.3.4
+- Rebuild Chapter 12 FreeBSD Source Analysis
+- 2025.3.3
+- Section 22.5 Java Environment Configuration Full rewrite
+- "SECTION 22.6 QT ENVIRONMENT CONFIGURATION" SUPPLEMENT
+- 2025.3.2
+- Add “Section 16.10 Gitlab-EE”
+- 2025.3.1
+- Add "Section 17.15 Zabfix Monitoring (based on PostgreSQL)"
+- 2025.2.28
+- Update "The Status of FreeBSD Mirror Stations"
+- 2025.2.26
+- New Section 1.9. UC Berkeley and Fiat Lux
+- move literary stories to <https://freebsd.gitbook.io/cfc>
+- Add "Section 17.14 OnlyOffice (based on PostgreSQL)"
+- 2025.2.25
+- "Section 17.5 MySQL 8.X" insert "MySQL 8.4 LTS"
+- Add "Section 17.11 MongoDB 80"
+- “Section 23.5 Grub & UEFI and efibootmgr” to add “EFI partition removal and reconstruction”, but there are still some problems with the documentation
+- Reword Section 17.1 Apache completely
+- Rewrite Section 17.2 Nginx completely
+- REWORD SECTION 17.3 PHP 8.X COMPLETELY
+- Add "Section 17.12 Tomcat"
+- New Section 17.13 Cady
+- 2025.2.24
+ADD "ZFS COMPRESSION" TO "SECTION 6.2 ZFS"
+Add "UEFI and efibootmgr" to Section 23.5 Grub and Other Guidance
+- "Section 3.2 FreeBSD for Source" to add "kernel modules (kmods) core module source: for FreeBSD 14.2 and higher (excluding 15.0-CURRENT)"
+- Distinction from Section 2.10 Manually Installed Double System (First FreeBSD)
+- 2025.2.23
+- Add a "backnote"
+- 2025.2.21
+- Add "Section 2.12 Install FreeBSD - Based on Apple M1 & VMware Fusion Pro"
+- 2025.2.19
+- Video tutorial [003-FreeBSD14.2 Installing KDE6] (https://www.bilibili.com/video/BV12zAyeKeej)
+- 2025.2.16
+- Split "Git&Linux Lose and FreeBSD Lose" to 19.5, 19.6, 19.7
+- 2025.2.15
+- Update and supplement “Section 16.9 Webmin”
+- 2025.2.14
+- add "section 17.10 programtheus monitoring deployment"
+- 2025.2.13
+- Delete the old KDE6 chapter and update the KDE5 chapter to kde6。
+- 2025.2.11
+- "Chapter 18 Berry-Berry-Breededed & RISCV" to add "Section 18.9 Radxa X4"
+- 2025.2.11
+- “Section 2.0 FreeBSD installation” supplement, split chapters, supplementing the description of creating a common user
+- 2025.2.10
+- "Section 2.0 FreeBSD installation diagram" to add "Auto (UFS)"
+- 2025.2.3
+- "Section 1.1 UNIX, UNIX-like, Linux and FreeBSD Profiles" new section "UNIX and Tishius Ship"
+- 2025.2.1
+- Section 18.6 RISC-V Profile combined with Section 18.8 Install OpenBSD on RISCV development board
+- Full-menu translation of Section 2.0 FreeBSD Installation
+- 2025.1.28
+- Section 23.4 Lead interface new: "Adjusting the Lead Interface and TTY Resolution", "Customise Lead Loader Logo"
+- 2025.1.21
+- CONVERSION OF ENABLING AGREEMENTS FROM BSD TO CC-BY (SIGNED INTERNATIONAL VERSION OF THE 4.0 AGREEMENT)
+- 2025.1.19
+- Update Section 21.3 Linux Compatibility Layer - Based on Ubuntu/Debian at 14.2
+- "Section 14.3 USB Network Sharing" fully rewrite
+- Full rewrite "Section 21.1 Linux Compatibility Level Achieved"
+- Photo file names go to Chinese culture to facilitate programming
+- 2025.1.18
+- Add thanks and move the contributor list to this standalone page
+- Add "contributions"
+- Insert the words “in all cases” and move the word “preambular” to this end。
+- 2025.1.13
+- Close Issue [Chapter 1.5, Error] (https://github.com/FreeBSD-Ask/FreeBSD-Ask/issues/159)
+- Add "Section 2.11 Qemu Install RISC-V FreeBSD (based on x86 Windows)"
+- Add "Section 4.23 Install Fluxbox"
+- Add "Section 4.24 Install IceWM"
+- Section 24.5 Automatically generate BSDlibc library text with script: script update
+- section 8.1 sudo and doas add "doas"
+- 2025.1.11
+- "Section 4.13 Installing KDE6" to add "Ports based on development (which requires long time to compile)"
+- 2025.1.10
+- "Section 2.4 Install FreeBSD - Rewrite Shared Folders Based on VMware Workstation Pro"
+- 2025.1.9
+- “SECTION 4.16 INSTALLATION OF CEDE” PATCHES
+- 2025.1.8
+- Section 4.0 Summary (necessary) is merged into Section 4.1
+- Section 4.1 Installation of graphic and Xorg (required) to Section 4.1 Overview of desktop environment, installation of graphic and Xorg
+- “Section 4.3 Installation of Gnome” with a new “Some anti-human settings”, supplement
+- "Section 4.5 Installation Xfce" supplement
+- Section 4.6 Installation of Cinnamon
+- Section 4.8 Installation of LXQt
+- “Section 4.4 Installation of Mate” to remove redundancy
+- Add "Section 4.14 Install Budgie"
+- “Section 4.7 Installation of Lumina” supplement
+- ADD "SECTION 4.21 INSTALL LXDE"
+- Add "Section 4.22 Install Windows Maker"
+- Section 19.2 Linux Loser and FreeBSD Lose Add "Why not choose Linux Desktop Operating System? "
+- 2025.1.6
+- Add Section 2.9 Install FreeBSD - Based on Apple M1 & Parallels Desktop 20
+- Add Section 2.10 Manual installation of dual systems (first FreeBSD)
+- "Section 2.9 Installation FreeBSD - Add Virtual Machine Tool based on Apple M1 & Parallels Design 20"
+
+
+# Fourth quarter of 2024
+
+- 2024.12.22
+- "Section 2.4 Installation of FreeBSD - Add troubleshooting based on VMware Workstation Pro"
+- 2024.12.21
+- Add "Section 10.3 Using BVCP to manage BHyve via web page"
+- The addition of the words “in existence or decomposed (2025 sequence)” in the preamble
+- 2024.12.19
+- SECTION 6.3 DISK AMPLIFICATION
+- "Section 10.3 Install Windows 11 with bhyve" fully rewrite。
+- "Section 2.3 Install FreeBSD - based on Virtual Box"
+- to supplement chapter 20 related packages, remove invalid packages
+- Delete the non-substantive section 10.1 Virtual introduction
+- Section 23.3 FreeBSD Chinese TTY console fully rewrited and validated
+- ADD SECTION 4.21 INSTALL KDE6
+- Delete Section 4.13 Install Wayland (optional), no substance
+- 2024.12.18
+- "Section 2.4 Installation of FreeBSD - New Configure Virtual Machine based on VMware Workstation Pro"
+- Section 2.0 FreeBSD installation diagrams are restored "How do you see your hardware support not supported?" Section
+- Section 1.3 - Why use FreeBSD to add a new section on honesty and credibility
+- To merge the words “compilation of notes”, “references”, “list of contributors” into “preface”
+- Insert “2021-2024 in the preamble”
+- 2024.12.17
+- "Section 2.0 FreeBSD Installation Graphics"
+- Which mirror to download from the original Section 2.6 ordinary computer and how to write it? Merge with "Section 2.0 FreeBSD Installation Graphics"
+- Add "Section 1.8 Who is using FreeBSD? "
+- 2024.12.16
+- Section 26.1 Installation Update to OpenBSD 7.6
+- In Section 26.4 Desktops and Other Software, KDE5 failed at OpenBSD 7.6 and the error appears to be more serious
+- 2024.12.14
+- Re-linking the literature chapter FreeBSD
+- 2024.12.4
+- Video tutorials [001-WIndows11 Install VMware17] (https://www.bilibili.com/video/BV13ji2YLEGS), [002-VMware17 Information FreeBSD14] (https://www.bilibili.com/video/BV1gji2YLEC) [003-FreeBSD14.2 Install KDE5] (https://www.bilibili.com/video/BV13jiji2QjiLELM), [004-FreStat14.2 Allot login ssh] (https://www.bililili.com/vide/BV1gjijiLE5], [005-FreeB142Replacep.pdf. Separate directories have been inserted。
+- 2024.12.3
+- “Section 1.3 Why use FreeBSD” to add “old news: FreeBSD Foundation received the largest contribution ever”
+- 2024.11.30
+- Section 3.7 Update FreeBSD by freebsd-update to FreeBSD 14.2-RELEASE
+- Section 2.0 FreeBSD installation diagram updated to FreeBSD 14.2-RELEASE
+- section 3.4 use of the package manager pkg to amend the section on installation pkg
+- 2024.11.29
+- Update section 1.6 FreeBSD development plan: Sync Upstream
+- 2024.11.27
+- "Section 1.2 BSD and philosopher George Berkeley" add "Beclay and Einstein"
+- 2024.11.26
+- Section 19.2 Linux Lose and FreeBSD Lose add "Git Typical Impairment"
+- 2024.11.22
+- "SECTION 4.11 THEME AND BEAUTIFICATION" ADD "SYSTEM UPDATE HINT `freebsd-update-notify`"
+- Section 17.9 Alist add an "official binary package"
+- Update Section 16.3 Nodejs Related
+- 2024.11.17
+- "SECTION 4.2 INSTALLING KDE 5" ADD "UNLOCK THE AUTOMATIC SCREEN"
+- 2024.11.15
+- "SECTION 4.2 INSTALL KDE 5" ADD "LOG INTERFACE THEME"
+- 2024.11.12
+- "Section 3.4 Use of the package manager pkg" add "how to find missing .so"
+- Section 21.13 Linux Compatible Fragmentation and Configuration Update "sysctl Variables (based on FreeBSD 14.1) "
+- 2024.11.9
+- Add a new section: "Section 6.8 Automatically Mount File System"
+- Add a new section: “Section 5.10 FreeBSD installation (Linux version)”
+- "Section 5.5 FreeBSD Installing Golden Hill WPS (Linux Edition)": New LockyLinux Based Plat" Installing WPS
+- 2024.11.8
+Section 1.1. UNIX, UNIX-like, Linux and FreeBSD Introduction: Add "MacOS/iOS et al. in relation to BSD"
+- 2024.11.7
+- "SECTION 6.4 NTFS MOUNT " : NEW FORMATTING, MOUNTING。
+- For “[Add new country fs for file systems] (https://github.com/freebsd/freebsd-ports/pull/302)]
+- 2024.111.2
+- "Section 19.2 Linux Lose and FreeBSD Lose"
+- New section 19.3, "Does anyone remember Linux before the ideal and proud BSD?"
+- Section 17.6 NextClaud - Based on PostgreSQL, add a section: "mount samba share in nextcloud"
+- 2024.11.1
+- New chapter: “Section 17.6 NextClaud - Based on PostgreSQL” and tested through
+- 2024/10/30
+- Section 14.5 Ethernet card: modify the profile path
+- Add Section 0.5 MySQL Database
+- 2024.10.29
+- Split former chapter 11 updates and upgrades FreeBSD into chapter 3 and move former chapter 0 computer overviews to chapter 11
+- "Section 3.9 Update FreeBSD with pkgbase" to supplement the internal mirror station and test NJU 163 USTC
+- 2024.10.28
+- "Section 17.9 AList": Service component test passed
+- 2024.10.27
+- USTC, 163, NJU pkg-freebsd source is largely back to normal
+- New section: “Section 17.9 Alist”
+- "SECTION 4.16 INSTALLATION OF CED" TEST PASSED
+- 2024.10.8
+- Synchronizes "Section 1.5 Who is Using FreeBSD"
+- Rewrite Section 4.1 Installation of graphic card drive and Xorg (required)
+- 2024.10.7
+- USTC, 163, NJU pkg-freebsd source failure, feedback received
+- Synchronization upstream: "Section 1.6 FreeBSD Development Plan"
+- 2024.10.5
+- add contributor “[dongdigua] (https://github.com/dongdigua)”
+- "section 3.4 use of package manager pkg": rewrite failure resolution。
+- Add a new section: “Section 2.2 Installation of FreeBSD - Based on Hyper-V, original sections are divided into sub-chapters。
+- Split the “reference and list of contributors” into two separate subsections
+
+# Third quarter of 2024
+
+- 2024.9.30
+- Section 2.0 Graphical Installation
+- Adjust the full WIFI area code to __CODESPAN_0_ set in FreeBSD reference profile
+- Rewriting in full: "Section 14.2 WiFi"
+- 2024.9.27
+- Move "Section 1.2 FreeBSD and philosopher George Berkeley" to "Section 1.1 UNIX, UNIX-like, Linux and FreeBSD profiles"
+- Reword section 1.2 BSD and philosopher George Berkeley and add references
+- Rewrite Section 2.0 graphically based on FreeBSD-14.1-RELEASE
+- 2024.9.20
+- "section 3.5 installing software by source code using ports": rewrite ccache 3, ccache 4. test passed。
+- PRODUCTION OF 14.1-RELEASE, 15.0-CURRENT, TWO VIRTUAL MIRRORS
+- New section "Section 2.9 Virtual Machine Pre-Figures"
+- Section 21.10 RockyLinux Compatibility (FreeBSD Port) was tested to move the QQQ installation method to the QQQQ chapter。
+- 2024.9.19
+- Add "Section 21.10 RockyLinux Compatibility (FreeBSD Port)"
+- "Section 6.2 ZFS" new "zfs user level management"
+- 2024.9.18
+- "section 3.5 installation of software by source code using ports": test, rewrite ccache, wget2。
+- 2024.9.14
+- Pluss a few SSH tools on Windows
+- 2024.9.13
+- ADDITIONAL TEST DATA FOR SEVERAL MEMORY CARDS, DISKS
+- 2024.9.9.9
+- Getting the novels off the line like they have nothing to do with FreeBSD
+- 2024.9.4
+- Test to create chapter 0, correctness to be examined
+- Resume Section 0.4 Operating System
+- Section 26.1 Installation: Sync to OpenBSD 7.5
+- SECTION 26.4 DESKTOPS AND OTHER SOFTWARE: TESTING KDE5
+- 2024.9.3
+- Merge former Section 2.7 to Section 2.6
+- 2024.8.29
+- “section 19.1 open sources and philosophy of suffering”: add the sub-section “land shirt” according to v2ex
+- "Section 1.4 Linux User Migration to North": Move the section "Big GNU/Linux Release" to "Section 19.2 Linux Lose and FreeBSD Lose" because this section is not very helpful to FreeBSD newcomers, but it is misleading
+- 2024.8.25 "Section 18.10 Description and testing of storage card parameters": Add "No value for microSD memory cards with any speed exceeding 104 MB/s" section
+- 2024.8.22 “CHAPTER 18 BERRY PIES AND RISCV” SPLIT, ADDING § 18.10 PROFILE AND TESTING OF STORAGE CARD PARAMETERS, § 18.11 BUS INTERFACES AND PROTOCOLS, § 18.12 DISPERSORS, FAN, WIND LIGHTER
+- 2024.8.21 "Section 18.1 "How to test storage cards and hard disks? "
+- 2024.8.19 “Section 1.3 Why FreeBSD”: Add the section “The reason for selecting FreeBSD — FreeBSD can seek the desirable middle lanes in a changing world”
+- "Section 1.5 Linux User Migration North": additional examples to make their overall presentation objective
+- DELETE FORMER SECTION 1.4 OTHER BSD PROFILES BECAUSE THEY ARE REPEATED IN SUBSEQUENT SECTIONS
+- 2024.8.15: “Section 1.5 Linux User Migration is North”: supplementing the outer chain, basis, command etc. to make it objective in general
+- “Section 1.1 UNIX, UNIX-like, Linux Profile”: Supplementary Extralink
+- Recreate full-text code highlight
+- a simple example of pkg, ports usage was added to the narrative section
+- 2024.8.15: "SECTION 24.1 BSD INIT MANAGEMENT SERVICE" FULLY REWRITE
+- Section 1.2 FreeBSD Brief History: Rewriting section on BSD and philosopher George Berkeley
+- 2024.8.14: Complement the pkg package for the full text to prevent people from forgetting Ports while making it easier for users who need Ports
+- Delete old section 7.5 because there is no substantive content
+- 2024.8.11: Delete former Section 2.7 Manual installation of FreeBSD because it duplicates the installation of dual systems in former Section 2.1
+- Section 1.2 FreeBSD Brief History: Reread Schedule
+- 2024.8.10 "Section 4.12 Remote Desktop Management": A new section, VNC compared to RPD (XRDP). Full rewrite. Add a new sub-section on remote access to FreeBSD by XRDP; and a new sub-section on RustDesk relay server
+- Chapter 16 Servers: almost all subsections without substantive content deleted
+- 2024.8.9 “Section 18”: Additional information such as amplification cards, false cards, etc
+- 2024.8.7: Streamlining of chapters 3, 10, 11, 12, 14, 17; elimination of redundancy
+- Basically deleted all chapters of the book without substantive content
+- "Section 2.9 SSH-related software recommendations and SSH configurations": a typical deficiencies argument for PuTTY was added; a new section - "mosh: moving shell" was added. Full rewrite section: "WinSCP Download"
+- 2024.8.6 “Section 18.1 Berry Pie Profile”: fully rewrite
+- Remove interface-related invalid links
+- "SECTION 18.9 BERRY PIE 5": A NEW SECTION ON HAT+, BUS, INTERFACES AND PROTOCOLS, HEATERS, FANS, ETC
+- Streamlining of chapters 1, 12, 14, 19, 20, 25 and elimination of redundancy
+- 2024.8.5 "Section 11.3 Update by source code": Move the "Git proxy settings" here. Information “nvi” was added. Overall layout optimization
+- “SECTION 1.6 UNIX PHILOSOPHY”: DELETE UNRELIABLE AND UNFOUNDED CONTENT AND REFERENCES
+- for reasons of reliability, the book in principle prohibits the reference to the content of "nan yi feng" (<https://www.ruanyifeng.com/>)
+- SECTION 18.2 SYSTEM INSTALLATION: OVERALL LAYOUT OPTIMIZATION; NEW MEMORY CARD SELECTION TECHNIQUES, NEW SD CARD STANDARD ANALYSIS
+- 2024.8.1 "Section 2.4 Installation of FreeBSD - Based on Vmware Workstation Pro": New Open Registration, Login, Download Process
+
+# 2024, August
+
+- 2021.3.14-2024.7.31: FreeBSD from the Introduction to Memory
+- 2021.12.19: FreeBSD project reconstruction from Introduction to Memory
+- The creation of the FreeBSD project, which began on 14 March 2021 (based on [clean-master/freebsdcn] (https://github.com/clean-master/freebsdcn/graphs/contributors), which produced the original version of the book on the same day, was initiated by the FreeBSD Chinese community (CFC) [clean-master cleaning master] (https://github.com/clean-master) and Ykla completed the initial organization and publication of the teaching programme on the following night (15 March 2021). The original prototype dates back to December 31, 2020, when a post published by ykla entitled " The Philosophy of FreeBSD Art Science " was published. The book used the titles FreeBSD from the introductory door to the runaway, FreeBSD Philosophy of Art Science。
