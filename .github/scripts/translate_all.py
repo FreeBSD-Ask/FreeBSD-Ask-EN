@@ -1,217 +1,190 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
-import sys
-import time
 import re
+import time
 import html
 import requests
 import concurrent.futures
-import mistune
 
-API_BASE_URL    = "http://localhost:5000"
-TRANSLATE_URL   = f"{API_BASE_URL}/translate"
-MAX_RETRIES     = 5
-RETRY_DELAY     = 2
-REQUEST_TIMEOUT = 90
-CHUNK_SIZE      = 3500
-MAX_WORKERS     = 2
-SENT_DELIMS     = r'[。！？.!?]'
+API_BASE = "http://localhost:5000"
+URL_LANGS = f"{API_BASE}/languages"
+URL_TRANS = f"{API_BASE}/translate"
 
+MAX_RETRIES = 5
+RETRY_DELAY = 2
+TIMEOUT = 90
+CHUNK = 2000   # 分块大小，防止请求过长
+MAX_WORKERS = 2
 
-def check_api_ready():
-    for i in range(1, 11):
+# 用于句子分割
+SENT_PAT = re.compile(r'([。！？\.!\?])')
+
+# 判断行是否是表格
+is_table_line = lambda line: line.strip().startswith("|") and line.strip().endswith("|")
+
+# 判断行是否是列表项
+is_list_line = lambda line: re.match(r'^\s*([-*+]|\d+\.)\s+', line)
+
+def check_api():
+    for i in range(1, 6):
         try:
-            r = requests.get(f"{API_BASE_URL}/languages", timeout=10)
+            r = requests.get(URL_LANGS, timeout=5)
             if r.status_code == 200:
-                print(f"[✓] API ready (attempt {i})")
                 return True
         except:
             pass
-        print(f"[...] Waiting for API (attempt {i}/10)…")
-        time.sleep(2)
-    print("[X] API not ready.")
+        time.sleep(1)
+    print("[X] 翻译 API 无法访问，请检查")
     return False
 
+def translate_chunk(text: str) -> str:
+    """分块翻译长文本"""
+    if not text.strip():
+        return text
+    # 按句子分割再重组
+    parts = SENT_PAT.split(text)
+    segments = []
+    cur = ""
+    for seg in parts:
+        if len(cur) + len(seg) <= CHUNK:
+            cur += seg
+        else:
+            if cur:
+                segments.append(cur)
+            cur = seg
+    if cur: segments.append(cur)
 
-def translate_text(raw: str) -> str:
+    out = []
+    for seg in segments:
+        out.append(_translate_text(seg))
+        time.sleep(0.2)
+    return "".join(out)
+
+def _translate_text(txt: str) -> str:
+    """调用翻译接口"""
     # 清理控制字符
-    txt = html.unescape(re.sub(r'[\x00-\x1F\x7F-\x9F]', '', raw))
-    payload = {"q": txt, "source": "zh", "target": "en", "format": "text"}
+    clean = html.unescape(re.sub(r'[\x00-\x1F\x7F-\x9F]', '', txt))
+    payload = {"q": clean, "source": "zh", "target": "en", "format": "text"}
     for i in range(MAX_RETRIES):
         try:
-            r = requests.post(TRANSLATE_URL, json=payload,
+            r = requests.post(URL_TRANS, json=payload,
                               headers={"Content-Type":"application/json"},
-                              timeout=REQUEST_TIMEOUT)
+                              timeout=TIMEOUT)
             r.raise_for_status()
-            return r.json().get("translatedText", "")
+            return r.json().get("translatedText","")
         except Exception as e:
-            if i < MAX_RETRIES - 1:
+            if i < MAX_RETRIES-1:
                 time.sleep(RETRY_DELAY*(i+1))
-                continue
-            print(f"[!] translate failed for text fragment:\n  {txt[:30]}... -> {e}")
-            return raw  # 最后返回原文，避免丢失
+            else:
+                # 最后一次失败，返回原文以免丢失
+                return txt
+    return txt
 
+def translate_line(line: str) -> str:
+    """翻译单行文本，保留链接/图片结构"""
+    # 先处理链接和图片
+    def repl_link(m):
+        text, url = m.group(1), m.group(2)
+        tr = translate_chunk(text)
+        return f"[{tr}]({url})"
+    line = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', repl_link, line)
 
-def split_sentences(text: str) -> list[str]:
-    parts = []
-    last = 0
-    for m in re.finditer(SENT_DELIMS, text):
-        parts.append(text[last:m.end()])
-        last = m.end()
-    if last < len(text):
-        parts.append(text[last:])
-    return parts
+    # 处理行内代码，不翻译
+    code_spans = {}
+    def repl_codespan(m):
+        key = f"__CODESPAN_{len(code_spans)}__"
+        code_spans[key] = m.group(0)
+        return key
+    line = re.sub(r'`[^`]+`', repl_codespan, line)
 
+    # 再翻译剩余中文
+    tr = translate_chunk(line)
 
-def chunked_translate(text: str) -> str:
-    segs = split_sentences(text)
-    chunks, cur = [], ""
-    for s in segs:
-        if len(cur)+len(s) <= CHUNK_SIZE:
-            cur += s
+    # 恢复行内代码
+    for k,v in code_spans.items():
+        tr = tr.replace(k, v)
+    return tr
+
+def process_block(block: list[str]) -> list[str]:
+    """根据块类型处理"""
+    if not block:
+        return block
+    # 代码块：``` 开始/结束 或 缩进四格
+    if block[0].startswith("```"):
+        return block  # 整块保留
+    if all(line.startswith("    ") or line.startswith("\t") for line in block):
+        return block  # 缩进代码块保留
+
+    # 表格块
+    if all(is_table_line(ln) or ln.strip().startswith(":") or ln.strip().startswith("---") for ln in block):
+        # 第一行表头，第二行分隔符，后续行内容
+        out = []
+        for i, ln in enumerate(block):
+            if i == 1 and re.match(r'^\s*\|[\s:-]+\|', ln):
+                out.append(ln)  # 保留分隔符
+            else:
+                # 分割单元格
+                parts = ln.split("|")
+                # parts[0]和最后通常为空
+                new = [parts[0]]
+                for cell in parts[1:-1]:
+                    new.append(" " + translate_chunk(cell.strip()) + " ")
+                new.append(parts[-1])
+                out.append("|".join(new))
+        return out
+
+    # 其他：逐行翻译
+    return [ translate_line(ln) for ln in block ]
+
+def translate_markdown(text: str) -> str:
+    """把全文分块，然后分别处理，最后拼回"""
+    lines = text.splitlines()
+    res = []
+    buf = []
+    for ln in lines + [""]:
+        # 以空行分块
+        if ln.strip() == "":
+            res.extend(process_block(buf))
+            res.append("")  # 空行
+            buf = []
         else:
-            chunks.append(cur); cur = s
-    if cur: chunks.append(cur)
+            buf.append(ln)
+    return "\n".join(res)
 
-    out = []
-    for i, c in enumerate(chunks, 1):
-        out.append(translate_text(c))
-        time.sleep(0.5)
-    return "".join(out)
-
-
-def translate_node_text(t: str) -> str:
-    if not t.strip(): return t
-    # 避免整行是 markdown 语法时乱翻
-    if re.fullmatch(r'[\s`#*>\-\[\]\(\):.!0-9]+', t):
-        return t
-    return chunked_translate(t) if len(t) > CHUNK_SIZE else translate_text(t)
-
-
-def translate_ast(nodes: list[dict]):
-    for nd in nodes:
-        tp = nd.get("type")
-        # 直接文本
-        if tp == "text":
-            nd["text"] = translate_node_text(nd.get("text",""))
-        # 链接：递归翻译显示文本
-        elif tp == "link" and "children" in nd:
-            translate_ast(nd["children"])
-        # 图片：只翻译 alt 文本
-        elif tp == "image" and "children" in nd:
-            translate_ast(nd["children"])
-        # 代码块/行内代码 跳过
-        elif tp in ("code_block","codespan"):
-            pass
-        # 表格结构：children[0] header, children[1:] body
-        elif tp == "table" and "children" in nd:
-            for sec in nd["children"]:
-                translate_ast(sec.get("children",[]))
-        # 其他有 children 的节点
-        elif "children" in nd:
-            translate_ast(nd["children"])
-    return nodes
-
-
-def render_md(nodes: list[dict]) -> str:
-    out = []
-    def rd(n):
-        tp = n.get("type")
-        if tp == "text":
-            return n.get("text","")
-        if tp == "paragraph":
-            return "".join(rd(c) for c in n["children"]) + "\n\n"
-        if tp == "heading":
-            lvl = n.get("attrs",{}).get("level",1)
-            txt = "".join(rd(c) for c in n["children"])
-            return f"{'#'*lvl} {txt}\n\n"
-        if tp == "list":
-            ol = n.get("attrs",{}).get("ordered",False)
-            start = n.get("attrs",{}).get("start",1)
-            res = []
-            for i,item in enumerate(n["children"]):
-                pre = f"{start+i}. " if ol else "- "
-                txt = "".join(rd(c) for c in item.get("children",[])).strip()
-                res.append(pre + txt.replace("\n","\n  "))
-            return "\n".join(res) + "\n\n"
-        if tp == "block_quote":
-            txt = "".join(rd(c) for c in n["children"]).strip().splitlines()
-            return "\n".join("> "+l for l in txt) + "\n\n"
-        if tp == "code_block":
-            inf = n.get("attrs",{}).get("info","")
-            return f"```{inf}\n{n.get('text','')}```\n\n"
-        if tp == "thematic_break":
-            return "---\n\n"
-        if tp == "link":
-            txt = "".join(rd(c) for c in n.get("children",[]))
-            url = n.get("link","")
-            title = n.get("attrs",{}).get("title")
-            tit = f' "{title}"' if title else ""
-            return f"[{txt}]({url}{tit})"
-        if tp == "image":
-            alt = "".join(rd(c) for c in n.get("children",[]))
-            url = n.get("link","")
-            title = n.get("attrs",{}).get("title")
-            tit = f' "{title}"' if title else ""
-            return f"![{alt}]({url}{tit})"
-        if tp == "table":
-            rows = n.get("children",[])
-            if not rows: return ""
-            # header row
-            hdr = rows[0]
-            def row_txt(r):
-                cells = r.get("children",[])
-                texts = ["".join(rd(c) for c in cell.get("children",[])) for cell in cells]
-                return "| " + " | ".join(texts) + " |"
-            sep = "| " + " | ".join("---" for _ in hdr.get("children",[])) + " |"
-            body = [row_txt(r) for r in rows[1:]]
-            return row_txt(hdr) + "\n" + sep + "\n" + "\n".join(body) + "\n\n"
-        # fallback：递归 children
-        if "children" in n:
-            return "".join(rd(c) for c in n["children"])
-        return ""
-    for node in nodes:
-        out.append(rd(node))
-    return "".join(out)
-
-
-def translate_file(inp: str, outp: str) -> bool:
+def work_file(src: str, dst: str) -> bool:
     try:
-        txt = open(inp, encoding="utf-8").read()
-        md = mistune.create_markdown(renderer="ast")
-        ast = md(txt)
-        translate_ast(ast)
-        res = render_md(ast)
-        os.makedirs(os.path.dirname(outp), exist_ok=True)
-        open(outp, "w", encoding="utf-8").write(res)
-        print(f"[✓] {inp} → {outp}")
+        txt = open(src, encoding="utf-8").read()
+        out = translate_markdown(txt)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        open(dst, "w", encoding="utf-8").write(out)
+        print(f"[✓] {src} → {dst}")
         return True
     except Exception as e:
-        print(f"[X] Error {inp}: {e}")
+        print(f"[X] Fail {src}: {e}")
         return False
 
-
 def main():
-    if not check_api_ready():
+    if not check_api():
         sys.exit(1)
-    tasks=[]
-    for r,_,fs in os.walk("./docs"):
-        for f in fs:
-            if f.endswith(".md"):
-                ip = os.path.join(r,f)
-                rp = os.path.relpath(ip,"./docs")
+    tasks = []
+    for root, _, files in os.walk("./docs"):
+        for fn in files:
+            if fn.endswith(".md"):
+                ip = os.path.join(root, fn)
+                rp = os.path.relpath(ip, "./docs")
                 op = os.path.join(".", rp)
-                tasks.append((ip,op))
-    print(f"[*] {len(tasks)} files found.")
-    succ=fail=0
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as e:
-        futs={e.submit(translate_file,ip,op):(ip,op) for ip,op in tasks}
+                tasks.append((ip, op))
+    print(f"[*] Found {len(tasks)} files")
+    ok = fail = 0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+        futs = { ex.submit(work_file, i,o):(i,o) for i,o in tasks }
         for f in concurrent.futures.as_completed(futs):
-            ok = f.result()
-            succ += ok; fail += (not ok)
-    print(f"\nSummary: {succ} succeeded, {fail} failed.")
+            if f.result(): ok +=1
+            else: fail+=1
+    print(f"\nDone: {ok} ok, {fail} fail")
     if fail: sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
